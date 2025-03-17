@@ -10,6 +10,9 @@
 #define ENABLE_TIMER 0
 #include "timer.h"
 #include "transport.h"
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 struct ncclTransport* ncclTransports[NTRANSPORTS+1] = {
   &p2pTransport,
@@ -25,18 +28,58 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
   struct ncclPeerInfo* peerInfo = comm->peerInfo+peer;
   struct ncclConnector* connector = (type == 1) ? comm->channels[channelId].peers[peer]->send + connIndex :
                                                   comm->channels[channelId].peers[peer]->recv + connIndex;
-  // for (int t=0; t<NTRANSPORTS; t++) {
-  //   struct ncclTransport *transport = ncclTransports[t];
-  //   struct ncclTransportComm* transportComm = type == 1 ? &transport->send : &transport->recv;
-  //   int ret = 0;
-  //   NCCLCHECK(transport->canConnect(&ret, comm, graph, myInfo, peerInfo));
-  //   if (ret) {
-  //     connector->transportComm = transportComm;
-  //     NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
-  //     if (transportType) *transportType = t;
-  //     return ncclSuccess;
-  //   }
-  // }
+  for (int t=0; t<NTRANSPORTS; t++) {
+    struct ncclTransport *transport = ncclTransports[t];
+    struct ncclTransportComm* transportComm = type == 1 ? &transport->send : &transport->recv;
+    int ret = 0;
+    NCCLCHECK(transport->canConnect(&ret, comm, graph, myInfo, peerInfo));
+    if (ret) {
+      connector->transportComm = transportComm;
+      NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
+      if (transportType) *transportType = t;
+      return ncclSuccess;
+    }
+  }
+  const char* SERVER_IP = "127.0.0.1";
+  const int PORT = 8888;
+  const int BUFFER_SIZE = 8192;
+
+  int clientSocket;
+  sockaddr_in serverAddr;
+
+  // 创建TCP套接字
+  if ((clientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    perror("socket creation failed");
+    return ncclSystemError;
+  }
+
+  // 配置服务器地址
+  serverAddr.sin_family = AF_INET;
+  serverAddr.sin_port = htons(PORT);
+  if (inet_pton(AF_INET, SERVER_IP, &serverAddr.sin_addr) <= 0) {
+    perror("invalid address");
+    close(clientSocket);
+    return ncclSystemError;
+  }
+
+  // 连接服务器（参考网页1的connect逻辑）
+  if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+    perror("connection failed");
+    close(clientSocket);
+    return ncclSystemError;
+  }
+  // 数据交互循环
+  while(true) {
+    string message = "test"
+    if (message == "exit") break;
+
+    // 发送数据（参考网页3的send实现）
+    ssize_t bytesSent = send(clientSocket, message.c_str(), message.size(), 0);
+    if (bytesSent < 0) {
+      perror("send error");
+      break;
+    }
+  }
   WARN("No transport found for rank %d[%lx] -> rank %d[%lx]", myInfo->rank, myInfo->busId, peerInfo->rank, peerInfo->busId);
   return ncclSystemError;
 }
