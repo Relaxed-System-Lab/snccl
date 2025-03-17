@@ -49,7 +49,7 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
 
   // 创建TCP套接字
   if ((clientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    perror("socket creation failed");
+    WARN("socket creation failed");
     return ncclSystemError;
   }
 
@@ -57,26 +57,26 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(PORT);
   if (inet_pton(AF_INET, SERVER_IP, &serverAddr.sin_addr) <= 0) {
-    perror("invalid address");
+    WARN("invalid address");
     close(clientSocket);
     return ncclSystemError;
   }
 
   // 连接服务器（参考网页1的connect逻辑）
   if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-    perror("connection failed");
+    WARN("connection failed");
     close(clientSocket);
     return ncclSystemError;
   }
   // 数据交互循环
   while(true) {
-    string message = "test"
+    string message = "test";
     if (message == "exit") break;
 
     // 发送数据（参考网页3的send实现）
     ssize_t bytesSent = send(clientSocket, message.c_str(), message.size(), 0);
     if (bytesSent < 0) {
-      perror("send error");
+      WARN("send error");
       break;
     }
   }
