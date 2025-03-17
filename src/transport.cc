@@ -25,18 +25,18 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
   struct ncclPeerInfo* peerInfo = comm->peerInfo+peer;
   struct ncclConnector* connector = (type == 1) ? comm->channels[channelId].peers[peer]->send + connIndex :
                                                   comm->channels[channelId].peers[peer]->recv + connIndex;
-  for (int t=0; t<NTRANSPORTS; t++) {
-    struct ncclTransport *transport = ncclTransports[t];
-    struct ncclTransportComm* transportComm = type == 1 ? &transport->send : &transport->recv;
-    int ret = 0;
-    NCCLCHECK(transport->canConnect(&ret, comm, graph, myInfo, peerInfo));
-    if (ret) {
-      connector->transportComm = transportComm;
-      NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
-      if (transportType) *transportType = t;
-      return ncclSuccess;
-    }
-  }
+  // for (int t=0; t<NTRANSPORTS; t++) {
+  //   struct ncclTransport *transport = ncclTransports[t];
+  //   struct ncclTransportComm* transportComm = type == 1 ? &transport->send : &transport->recv;
+  //   int ret = 0;
+  //   NCCLCHECK(transport->canConnect(&ret, comm, graph, myInfo, peerInfo));
+  //   if (ret) {
+  //     connector->transportComm = transportComm;
+  //     NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
+  //     if (transportType) *transportType = t;
+  //     return ncclSuccess;
+  //   }
+  // }
   WARN("No transport found for rank %d[%lx] -> rank %d[%lx]", myInfo->rank, myInfo->busId, peerInfo->rank, peerInfo->busId);
   return ncclSystemError;
 }
