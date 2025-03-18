@@ -421,7 +421,7 @@ ncclResult_t p2pSendSetup(struct ncclComm* comm, struct ncclTopoGraph* graph, st
     NCCLCHECK(p2pMap(comm, &send->proxyConn, myInfo, comm->peerInfo+info->rank, &info->p2pBuff, (void**)&resources->sendDevMem, &resources->sendMemIpc));
     resources->sendMemSameProc = P2P_SAME_PID(myInfo, (comm->peerInfo + info->rank));
   }
-
+  INFO(NCCL_INIT, "jiashu: p2psetup success");
   return ncclSuccess;
 }
 
