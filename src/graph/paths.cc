@@ -524,7 +524,7 @@ ncclResult_t ncclTopoCheckNet(struct ncclTopoSystem* system, int rank1, int rank
     if (path->type <= PATH_PXB && path->bw > netSpeed2) netSpeed2 = path->bw;
   }
 
-  INFO(NCCL_INIT, "jiashu: %d, %d, %d", netSpeed1, netSpeed2, speed)
+  INFO(NCCL_INIT, "jiashu: %lf, %lf, %lf", netSpeed1, netSpeed2, speed)
   if (netSpeed1 > speed && netSpeed2 > speed) return ncclSuccess;
   *net = 0;
   return ncclSuccess;
