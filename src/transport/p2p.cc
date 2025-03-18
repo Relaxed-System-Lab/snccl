@@ -120,8 +120,6 @@ extern int64_t ncclParamMNNVLEnable();
 
 /* Determine if two peers can communicate through p2p */
 ncclResult_t p2pCanConnect(int* ret, struct ncclComm* comm, struct ncclTopoGraph* graph, struct ncclPeerInfo* info1, struct ncclPeerInfo* info2) {
-  *ret = 1;
-  return ncclSuccess;
   initCeOperation();
 
   // Check topology / p2p level.
