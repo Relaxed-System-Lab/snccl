@@ -1458,6 +1458,7 @@ ncclResult_t ncclTopoGetLocalNet(struct ncclTopoSystem* system, int rank, int ch
   int localNetCount;
   NCCLCHECK(ncclTopoGetLocal(system, GPU, gpu, NET, localNets, &localNetCount, NULL));
   if (localNetCount==0) {
+    INFO(NCCL_INIT, "")
     WARN("Could not find any local path from gpu %d to net.", gpu);
     return ncclInternalError;
   }
