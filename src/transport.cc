@@ -37,7 +37,7 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
       connector->transportComm = transportComm;
       NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
       if (transportType) *transportType = t;
-      INFO("Jiashu: choose TRansports:%d", t);
+      INFO(NCCL_INIT, "Jiashu: choose TRansports type:%d", t);
       return ncclSuccess;
     }
   }
