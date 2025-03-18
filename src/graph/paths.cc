@@ -499,6 +499,7 @@ NCCL_PARAM(NetDisableIntra, "NET_DISABLE_INTRA", 0);
 
 // Check whether going through the network would be faster than going through P2P/SHM.
 ncclResult_t ncclTopoCheckNet(struct ncclTopoSystem* system, int rank1, int rank2, int* net) {
+  INFO(NCCL_INIT, "jiashu ncclTopoCheckNet: %d, %d", rank1, rank2);
   if (ncclParamNetDisableIntra() == 1) {
     *net = 0;
     return ncclSuccess;
