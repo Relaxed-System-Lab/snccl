@@ -121,6 +121,7 @@ extern int64_t ncclParamMNNVLEnable();
 /* Determine if two peers can communicate through p2p */
 ncclResult_t p2pCanConnect(int* ret, struct ncclComm* comm, struct ncclTopoGraph* graph, struct ncclPeerInfo* info1, struct ncclPeerInfo* info2) {
   *ret = 1;
+  INFO(NCCL_INIT, "jiashu: Forcep2p, remember to remove");
   return ncclSuccess;
   initCeOperation();
 
