@@ -226,6 +226,7 @@ static ncclResult_t ncclTopoDevToRank(struct ncclTopoSystem* system, int dev, in
 static ncclResult_t ncclTopoIdToNetDev(struct ncclTopoSystem* system, int64_t id, int* netDev) {
   *netDev = -1;
   for (int i=0; i<system->nodes[NET].count; i++) {
+    INFO(NCCL_INIT, "jiashu: net node %d", system->nodes[NET].nodes[i].id)
     if (system->nodes[NET].nodes[i].id == id) {
       *netDev = system->nodes[NET].nodes[i].net.dev;
       return ncclSuccess;
