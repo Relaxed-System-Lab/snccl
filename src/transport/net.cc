@@ -151,7 +151,8 @@ struct netRegInfo {
 
 /* Determine if two peers can communicate with NET */
 static ncclResult_t canConnect(int* ret, struct ncclComm* comm, struct ncclTopoGraph* graph, struct ncclPeerInfo* info1, struct ncclPeerInfo* info2) {
-  INFO(NCCL_INIT, "jiashu: %d, %d", info1->hostHash, info1->hostHash)
+  INFO(NCCL_INIT, "jiashu: %lld, %lld", info1->hostHash, info1->hostHash)
+  *ret = 1;
   if (info1->hostHash == info2->hostHash) {
     // If on the same host, check intra-node net is not disabled.
     NCCLCHECK(ncclTopoCheckNet(comm->topo, info1->rank, info2->rank, ret));
