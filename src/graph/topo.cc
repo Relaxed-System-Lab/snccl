@@ -357,6 +357,7 @@ ncclResult_t ncclTopoAddNet(struct ncclXmlNode* xmlNet, struct ncclTopoSystem* s
   int dev;
   NCCLCHECK(xmlGetAttrInt(xmlNet, "dev", &dev));
 
+  INFO(NCCL_INIT, "jiashu: add net");
   struct ncclTopoNode* net;
   NCCLCHECK(ncclTopoCreateNode(system, &net, NET, NCCL_TOPO_ID(systemId, dev)));
   net->net.dev = dev;
@@ -391,7 +392,7 @@ ncclResult_t ncclTopoAddNic(struct ncclXmlNode* xmlNic, struct ncclTopoSystem* s
     NCCLCHECK(xmlGetAttrIndex(xmlNet, "dev", &index));
     // This means that the "dev" attribute wasn't set on this net xml node. That means it should not be added to the system topology graph
     if (index == -1) continue;
-    NCCLCHECK(ncclTopoAddNet(xmlNet, system, nic, systemId));
+    NCCLCHECK((xmlNet, system, nic, systemId));
   }
   return ncclSuccess;
 }
