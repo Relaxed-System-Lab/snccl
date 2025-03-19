@@ -357,7 +357,7 @@ ncclResult_t ncclTopoAddNet(struct ncclXmlNode* xmlNet, struct ncclTopoSystem* s
   int dev;
   NCCLCHECK(xmlGetAttrInt(xmlNet, "dev", &dev));
 
-  INFO(NCCL_INIT, "jiashu: add nic")
+  INFO(NCCL_INIT, "jiashu: add nic");
   struct ncclTopoNode* net;
   NCCLCHECK(ncclTopoCreateNode(system, &net, NET, NCCL_TOPO_ID(systemId, dev)));
   net->net.dev = dev;
