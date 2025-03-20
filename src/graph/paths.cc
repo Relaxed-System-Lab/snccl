@@ -149,6 +149,7 @@ ncclResult_t ncclTopoPrintPaths(struct ncclTopoSystem* system) {
   for (int i=0; i<system->nodes[GPU].count; i++) {
     printNodePaths(system, system->nodes[GPU].nodes+i);
   }
+  LOG(NCCL_INIT, "jiashu: %d !!!", system->nodes[NET].count);
   for (int i=0; i<system->nodes[NET].count; i++) {
     printNodePaths(system, system->nodes[NET].nodes+i);
   }
