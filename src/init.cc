@@ -810,7 +810,7 @@ static ncclResult_t initTransportsRank(struct ncclComm* comm, struct ncclComm* p
   NCCLCHECKGOTO(ncclTopoPrint(comm->topo), ret, fail);
   timers[TIMER_INIT_TOPO] = clockNano() - timers[TIMER_INIT_TOPO];
 
-  INFO(NCCL_INIT, "jiashu: finish init", comm->topo->node[5].count);
+  INFO(NCCL_INIT, "jiashu: finish init", comm->topo->nodes[5].count);
   // Set Affinity to a CPU local the our GPU, so that all memory we allocate
   // on the host is local.
   NCCLCHECKGOTO(ncclTopoGetCpuAffinity(comm->topo, comm->rank, &comm->cpuAffinity), ret, fail);
