@@ -799,9 +799,9 @@ static ncclResult_t initTransportsRank(struct ncclComm* comm, struct ncclComm* p
   // Compute paths between GPUs and NICs
   NCCLCHECKGOTO(ncclTopoComputePaths(comm->topo, comm), ret, fail);
   // Remove inaccessible GPUs and unused NICs
-  NCCLCHECKGOTO(ncclTopoTrimSystem(comm->topo, comm), ret, fail);
+  //NCCLCHECKGOTO(ncclTopoTrimSystem(comm->topo, comm), ret, fail);
   // Recompute paths after trimming
-  NCCLCHECKGOTO(ncclTopoComputePaths(comm->topo, comm), ret, fail);
+  //NCCLCHECKGOTO(ncclTopoComputePaths(comm->topo, comm), ret, fail);
   // Init search
   NCCLCHECKGOTO(ncclTopoSearchInit(comm->topo), ret, fail);
   // Decide on comm's CPU architecture.
