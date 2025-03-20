@@ -384,7 +384,7 @@ ncclResult_t ncclTopoAddNet(struct ncclXmlNode* xmlNet, struct ncclTopoSystem* s
 }
 
 ncclResult_t ncclTopoAddNic(struct ncclXmlNode* xmlNic, struct ncclTopoSystem* system, struct ncclTopoNode* nic, int systemId) {
-  INFO(NCCL_INIT, "jiashu: add NIc");
+  //INFO(NCCL_INIT, "jiashu: add NIc");
   for (int s=0; s<xmlNic->nSubs; s++) {
     struct ncclXmlNode* xmlNet = xmlNic->subs[s];
     if (strcmp(xmlNet->name, "net") != 0) continue;
@@ -1391,7 +1391,7 @@ ncclResult_t ncclTopoGetSystem(struct ncclComm* comm, struct ncclTopoSystem** sy
   // Only update our topo tracking structure if we aren't dumping (separate steps)
   if (dumpXmlFile == NULL) NCCLCHECKGOTO(ncclTopoGetSystemFromXml(xml, system, comm->peerInfo[comm->rank].hostHash), ret, fail);
 
-  INFO(NCCL_INIT, "jiashu: comm->topo, %d", comm->topo->nodes[NET].count);
+  //INFO(NCCL_INIT, "jiashu: comm->topo, %d", comm->topo->nodes[NET].count);
 exit:
   if (!comm->MNNVL && localRanks) free(localRanks);
   if (mem) free(mem);
