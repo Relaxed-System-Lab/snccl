@@ -204,7 +204,7 @@ static ncclResult_t sendSetup(struct ncclComm* comm, struct ncclTopoGraph* graph
   int64_t netId;
   NCCLCHECK(ncclTopoGetNetDev(comm, myInfo->rank, graph, channelId, peerInfo->rank, &netId, &req.netDev, &proxyRank));
   NCCLCHECK(ncclTopoCheckGdr(comm->topo, myInfo->rank, netId, 1, &req.useGdr));
-  INFO(NCCL_INIT, "jiashu: usegdr %d", req.useGdr == 0 ? 0 : 1);
+  //INFO(NCCL_INIT, "jiashu: usegdr %d", req.useGdr == 0 ? 0 : 1);
   send->conn.flags |= req.useGdr ? NCCL_DIRECT_NIC : 0;
   if (!req.useGdr && connIndex == 0) comm->useGdr = 0;
   if (proxyRank != myInfo->rank && connIndex == 0) comm->useNetPXN = true;

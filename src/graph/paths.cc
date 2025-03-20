@@ -436,10 +436,10 @@ ncclResult_t ncclTopoCheckGdr(struct ncclTopoSystem* system, int rank, int64_t n
     distance = PATH_C2C;
   }
 
-  if (distance > netGdrLevel) {
-    INFO(NCCL_NET,"GPU Direct RDMA Disabled for GPU %d / HCA %lx (distance %d > %d)", rank, netId, distance, netGdrLevel);
-    return ncclSuccess;
-  }
+  // if (distance > netGdrLevel) {
+  //   INFO(NCCL_NET,"GPU Direct RDMA Disabled for GPU %d / HCA %lx (distance %d > %d)", rank, netId, distance, netGdrLevel);
+  //   return ncclSuccess;
+  // }
 
   // Force PCIe mapping if path goes through PCI on a C2C system
   if (gpu->paths[CPU][c].type == PATH_C2C && distance != PATH_C2C) *gdrMode = ncclTopoGdrModePci;
