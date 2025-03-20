@@ -598,6 +598,7 @@ ncclResult_t ncclTopoSearchRecGpu(struct ncclTopoSystem* system, struct ncclTopo
 }
 
 ncclResult_t ncclTopoSearchRecNet(struct ncclTopoSystem* system, struct ncclTopoGraph* graph, struct ncclTopoGraph* saveGraph, int backToNet, int backToFirstRank, int* time) {
+  INFO(NCCL_INIT, "nccl search net");
   const int bw = graph->bwInter;
   int nets[NCCL_TOPO_MAX_NODES];
   int netCount;
