@@ -218,7 +218,7 @@ ncclResult_t ncclTransportP2pSetup(struct ncclComm* comm, struct ncclTopoGraph* 
               struct ncclConnector* conn = comm->channels[c].peers[recvPeer]->recv + connIndex;
               // This connector hasn't completed connection yet
               if (conn->connected == 0) {
-                INFO("NCCL_INIT", "jiashu: connect! %d, %d", c, comm->rank);
+                INFO(NCCL_INIT, "jiashu: connect! %d, %d", c, comm->rank);
                 NCCLCHECKGOTO(conn->transportComm->connect(comm, recvData[p] + recvDataOffset, 1, comm->rank, conn), ret, fail);
                 if (ret == ncclSuccess) {
                   conn->connected = 1;
