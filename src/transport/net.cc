@@ -319,7 +319,7 @@ static ncclResult_t sendConnect(struct ncclComm* comm, struct ncclConnect* conne
   struct connectMap* map = (connectMap*) send->transportResources;
   void* opId;
   int recvUseGdr;
-
+  INFO(NCCL_INIT, "jiashu connect %d %d", nranks, rank);
   memcpy(&recvUseGdr, (uint8_t*)connectInfo + sizeof(ncclNetHandle_t), sizeof(int));
   if (!recvUseGdr) send->conn.flags &= ~NCCL_DIRECT_NIC;
 
@@ -899,7 +899,6 @@ static ncclResult_t recvProxyConnect(struct ncclProxyConnection* connection, str
     ret = proxyState->ncclNet->accept(resources->netListenComm, &resources->netRecvComm, &resources->netDeviceHandle);
     connection->proxyAppendPtr = &connection->proxyAppend;
   }
-  INFO(NCCL_INIT, "jiashu Debug ncclNET INFO");
   NCCLCHECK(ret);
   if (resources->netRecvComm == NULL) {
     *done = 0;
