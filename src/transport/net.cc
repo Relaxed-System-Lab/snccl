@@ -899,7 +899,7 @@ static ncclResult_t recvProxyConnect(struct ncclProxyConnection* connection, str
     ret = proxyState->ncclNet->accept(resources->netListenComm, &resources->netRecvComm, &resources->netDeviceHandle);
     connection->proxyAppendPtr = &connection->proxyAppend;
   }
-
+  INFO(NCCL_INIT, "jiashu Debug ncclNET INFO");
   NCCLCHECK(ret);
   if (resources->netRecvComm == NULL) {
     *done = 0;
