@@ -55,12 +55,12 @@ void ev_handler2(struct mg_connection *c, int ev, void *ev_data) {
   }
 }
 
-void clinet_init(void) {
+ncclResult_t clientInit() {
   struct mg_mgr mgr;  // Declare event manager
   mg_mgr_init(&mgr);  // Initialise event manager
   mg_http_listen(&mgr, "http://0.0.0.0:8000", ev_handler2, NULL);  // Setup listener
   for (;;) {          // Run an infinite event loop
     mg_mgr_poll(&mgr, 1000);
   }
-  return 0;
+  return ncclSuccess;
 }
