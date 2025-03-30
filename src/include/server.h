@@ -1,3 +1,3 @@
 #include "nccl.h"
 
-void server_init();
+ncclResult_t serverInit();

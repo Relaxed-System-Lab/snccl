@@ -74,7 +74,7 @@ static void initOnceFunc() {
   // Always initialize bootstrap network
   NCCLCHECKGOTO(bootstrapNetInit(), initResult, exit);
 
-  server_init();
+  NCCLCHECK(serverInit());
   initNvtxRegisteredEnums();
 exit:;
 }
