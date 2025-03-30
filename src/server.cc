@@ -37,6 +37,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
 // }
 
 ncclResult_t serverInit() {
+  INFO(NCCL_INIT, "jiashu: serverInit");
   struct mg_mgr mgr;
   mg_mgr_init(&mgr);
   
