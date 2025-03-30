@@ -33,7 +33,7 @@ ncclResult_t serverInit() {
   mg_mgr_init(&mgr);
   
   // 监听本地端口 8000（可修改）
-  mg_listen(&mgr, "tcp://0.0.0.0:8000", fn, NULL);
+  mg_listen(&mgr, "tcp://0.0.0.0:8000", ev_handler, NULL);
   
   // 事件循环
   while (true) mg_mgr_poll(&mgr, 50);
