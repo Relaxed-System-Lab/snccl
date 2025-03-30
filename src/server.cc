@@ -9,7 +9,7 @@
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_ACCEPT) {
         // 客户端连接时，创建到目标服务器的连接
-        struct mg_connection *dest = mg_connect(c->mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT), NULL, NULL);
+        struct mg_connection *dest = mg_connect(c->mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT).buf, NULL, NULL);
         if (dest) {
             dest->fn_data = c;  // 绑定客户端与目标连接
             c->fn_data = dest;
@@ -17,7 +17,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     } else if (ev == MG_EV_READ) {
         // 收到客户端数据时，转发到目标服务器
         struct mg_connection *dest = (struct mg_connection *)c->fn_data;
-        if (dest && dest->is_connected) {
+        if (dest && dest->is_connecting) {
             mg_send(dest, c->recv.buf, c->recv.len);
             c->recv.len = 0;  // 清空接收缓冲区
         }
