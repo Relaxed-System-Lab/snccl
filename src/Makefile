@@ -10,7 +10,7 @@ include ../makefiles/version.mk
 INCEXPORTS  := nccl.h
 LIBSRCFILES := \
 	bootstrap.cc channel.cc collectives.cc debug.cc enqueue.cc group.cc \
-	init.cc init_nvtx.cc proxy.cc transport.cc mnnvl.cc server.cc mongoose.c \
+	init.cc init_nvtx.cc proxy.cc transport.cc mnnvl.cc server.cc mongoose.cc \
 	$(wildcard graph/*.cc) \
 	$(wildcard misc/*.cc) \
 	$(wildcard transport/*.cc) \
