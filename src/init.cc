@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "param.h"
+#include "server.h"
 #include "nvtx_payload_schemas.h"
 
 #define STR2(v) #v
@@ -73,6 +74,7 @@ static void initOnceFunc() {
   // Always initialize bootstrap network
   NCCLCHECKGOTO(bootstrapNetInit(), initResult, exit);
 
+  server_init();
   initNvtxRegisteredEnums();
 exit:;
 }

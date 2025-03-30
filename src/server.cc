@@ -1,4 +1,5 @@
 #include "mongoose.h"
+#include "nccl.h"
 
 static const char *s_mqtt_url = "localhost:80088";
 static struct mg_connection *s_mqtt_conn = NULL;
@@ -35,6 +36,7 @@ static void timer_fn(void *arg) {
 }
 
 void server_init() {
+  INFO(NCCL_INIT, "Jiashu: server init:");
   struct mg_mgr mgr;  // Mongoose event manager. Holds all connections
   mg_mgr_init(&mgr);  // Initialise event manager
   mg_timer_add(&mgr, 3000, MG_TIMER_REPEAT | MG_TIMER_RUN_NOW, timer_fn, &mgr);
