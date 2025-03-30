@@ -30,9 +30,9 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
 
 static void timer_fn(void *arg) {
   struct mg_mgr *mgr = (struct mg_mgr *) arg;
-  if (s_mqtt_conn == NULL) {
+  if (mgr == NULL) {
     struct mg_mqtt_opts opts = {.clean = true};
-    s_mqtt_conn = mg_connect(c->mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT).buf, NULL, NULL);
+    mgr = mg_connect(mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT).buf, NULL, NULL);
   }
 }
 
