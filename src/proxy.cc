@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sched.h>
+#include <plugin/connector.h>
 
 #define NCCL_MAX_PROXY_CONNECTIONS (NCCL_MAX_LOCAL_RANKS+1)
 

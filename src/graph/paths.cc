@@ -390,12 +390,12 @@ ncclResult_t ncclTopoCheckGdr(struct ncclTopoSystem* system, int rank, int64_t n
   NCCLCHECK(ncclTopoRankToIndex(system, rank, &g));
   struct ncclTopoNode* gpu = system->nodes[GPU].nodes+g;
 
-  INFO(NCCL_INIT, "jiashu: net and gpu not support rmda");
+  //INFO(NCCL_INIT, "jiashu: net and gpu not support rmda");
   // Check that both the NIC and GPUs support it
   if (net->net.gdrSupport == 0) return ncclSuccess;
   if (gpu->gpu.gdrSupport == 0) return ncclSuccess;
 
-  INFO(NCCL_INIT, "jiashu: net and gpu support rmda");
+  //INFO(NCCL_INIT, "jiashu: net and gpu support rmda");
   if (read) { // For reads (sends) only enable under certain conditions
     int gdrReadParam = ncclParamNetGdrRead();
     if (gdrReadParam == 0) return ncclSuccess;
@@ -442,7 +442,7 @@ ncclResult_t ncclTopoCheckGdr(struct ncclTopoSystem* system, int rank, int64_t n
   //   return ncclSuccess;
   // }
 
-  INFO(NCCL_INIT, "jiashu: check distance %d %d %d", n, g, distance);
+  //INFO(NCCL_INIT, "jiashu: check distance %d %d %d", n, g, distance);
   // Force PCIe mapping if path goes through PCI on a C2C system
   if (gpu->paths[CPU][c].type == PATH_C2C && distance != PATH_C2C) *gdrMode = ncclTopoGdrModePci;
   else *gdrMode = ncclTopoGdrModeDefault;
