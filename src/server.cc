@@ -28,12 +28,21 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
+static void timer_fn(void *arg) {
+  struct mg_mgr *mgr = (struct mg_mgr *) arg;
+  if (s_mqtt_conn == NULL) {
+    struct mg_mqtt_opts opts = {.clean = true};
+    s_mqtt_conn = mg_connect(c->mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT).buf, NULL, NULL);
+  }
+}
+
 ncclResult_t serverInit() {
   struct mg_mgr mgr;
   mg_mgr_init(&mgr);
   
   // 监听本地端口 8000（可修改）
   mg_listen(&mgr, "tcp://0.0.0.0:8000", ev_handler, NULL);
+  mg_timer_add(&mgr, 3000, MG_TIMER_REPEAT | MG_TIMER_RUN_NOW, timer_fn, &mgr);
   
   // 事件循环
   while (true) mg_mgr_poll(&mgr, 50);
