@@ -38,7 +38,6 @@ void* ncclserverInit(void* args){
     while (true) mg_mgr_poll(&mgr, 50);
   
     mg_mgr_free(&mgr);
-    return ncclSuccess;
 }
 
 
@@ -58,7 +57,6 @@ void* ncclserver2Init(void* args) {
     mg_listen(&mgr, "tcp://0.0.0.0:8001", fn, NULL);  // 监听端口 8001
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
-    return ncclSuccess;
 }
 
 static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
