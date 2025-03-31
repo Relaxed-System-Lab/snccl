@@ -55,7 +55,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 void* ncclserver2Init(void* args) {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    mg_listen(&mgr, "tcp://0.0.0.0:8001", fn, NULL);  // 监听端口 8001
+    mg_listen(&mgr, "tcp://192.168.0.1:8001", fn, NULL);  // 监听端口 8001
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
 }
@@ -96,5 +96,6 @@ ncclResult_t serverInit() {
   if (!thread2){
     PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
     ncclSetThreadName(thread1, "NCCL Server2");
+    INFO(NCCL_INIT, "jiashu: server2Init success");
   }
 }
