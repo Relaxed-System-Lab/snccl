@@ -81,5 +81,5 @@ ncclResult_t clientConncet() {
     mg_connect(&mgr, "tcp://转发服务器IP:8000", client_handler, NULL); // 连接转发服务器
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
-    return 0;
+    return ncclSuccess;
 }
