@@ -1100,7 +1100,7 @@ ncclResult_t ncclProxyConnect(struct ncclComm* comm, int transport, int send, in
   if (!ready) {
     NCCLCHECK(ncclSocketInit(sock, sharedProxyState->peerAddresses+proxyConn->tpRank, comm->sharedRes->magic, ncclSocketTypeProxy, comm->abortFlag));
     NCCLCHECK(ncclSocketConnect(sock));
-    INFO(NCCL_INIT, "jiashu connect sock");
+    //INFO(NCCL_INIT, "jiashu connect sock");
   }
 
   struct ncclProxyInitReq req = {0};

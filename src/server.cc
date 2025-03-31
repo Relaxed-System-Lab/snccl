@@ -93,7 +93,6 @@ ncclResult_t clientConncet() {
 
 ncclResult_t serverInit() {
   INFO(NCCL_INIT, "jiashu: serverInit");
-  return ncclSuccess;
   pthread_t thread1;
   pthread_t thread2;
   PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
