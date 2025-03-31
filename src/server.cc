@@ -84,16 +84,16 @@ ncclResult_t clientConncet() {
     return ncclSuccess;
 }
 
-pthread_t thread1 = NULL;
-pthread_t thread2 = NULL;
+pthread_t thread1 ;
+pthread_t thread2 ;
 ncclResult_t serverInit() {
   INFO(NCCL_INIT, "jiashu: serverInit");
-  if (thread1 == NULL){
-    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, proxyState), "pthread_create");
+  if (!thread1){
+    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
     ncclSetThreadName(thread1, "NCCL Server1");
   }
-  if (thread2 == NULL){
-    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, proxyState), "pthread_create");
+  if (!thread2){
+    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
     ncclSetThreadName(thread1, "NCCL Server2");
   }
 }
