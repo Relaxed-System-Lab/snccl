@@ -33,7 +33,8 @@ void* ncclserverInit(void* args){
     mg_mgr_init(&mgr);
   
     // 监听本地端口 8000（可修改）
-    mg_listen(&mgr, "tcp://0.0.0.0:8000", ev_handler, NULL);
+    INFO(NCCL_INIT, "mg_mgr_init success");
+    mg_listen(&mgr, "tcp://192.168.0.1:8000", ev_handler, NULL);
     // 事件循环
     while (true) mg_mgr_poll(&mgr, 50);
   
@@ -89,9 +90,11 @@ ncclResult_t serverInit() {
   if (!thread1){
     PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
     ncclSetThreadName(thread1, "NCCL Server1");
+
+    INFO(NCCL_INIT, "jiashu: serverInit success");
   }
   if (!thread2){
-    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
+    PTHREADCHECK(pthread_creaste(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
     ncclSetThreadName(thread1, "NCCL Server2");
   }
 }
