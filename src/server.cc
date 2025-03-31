@@ -1,6 +1,13 @@
 #include "mongoose.h"
 #include "comm.h"
 #include "nccl.h"
+#include <uthash.h> // 哈希表管理 client2 连接
+
+typedef struct {
+    char addr[64];          // 客户端地址（如 "192.168.1.2:8000"）
+    struct mg_connection *conn; // 对应的连接句柄
+    UT_hash_handle hh;      // 哈希表句柄
+} ClientEntry;
 
 #define DEST_PORT "8001"
 #define DEST_IP "192.168.1.148"
@@ -20,15 +27,15 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         struct mg_str *data = &c->recv;
         if (data->len < 4) return; // 等待完整包头
         
-        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->buffer);
-        char *target_addr = (char *)data->buffer + 2;
+        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->buf);
+        char *target_addr = (char *)data->buf + 2;
         uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
         
         // 2. 动态连接 server2（若未连接）
         struct mg_connection *server2_conn = mg_connect(c->mgr, SERVER2_ADDR, NULL, NULL);
         if (server2_conn) {
             // 3. 封装目标地址和数据，转发至 server2
-            mg_send(server2_conn, data->buffer, data->len);
+            mg_send(server2_conn, data->buf, data->len);
             c->recv.len = 0; // 清空接收缓冲区
         }
     } else if (ev == MG_EV_CLOSE) {
@@ -59,8 +66,8 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_READ) {
         // 1. 解析 server1 转发的数据包
         struct mg_str *data = &c->recv;
-        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->buffer);
-        char *target_addr = (char *)data->buffer + 2;
+        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->buf);
+        char *target_addr = (char *)data->buf + 2;
         uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
         char *payload = target_addr + addr_len + 2;
 
