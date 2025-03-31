@@ -28,7 +28,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-void* ncclserverInit(){
+void* ncclserverInit(void* args){
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
   
@@ -52,7 +52,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-void* ncclserver2Init() {
+void* ncclserver2Init(void* args) {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
     mg_listen(&mgr, "tcp://0.0.0.0:8001", fn, NULL);  // 监听端口 8001
