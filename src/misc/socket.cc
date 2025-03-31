@@ -682,6 +682,7 @@ ncclResult_t ncclSocketConnect(struct ncclSocket* sock) {
   sock->finalizeCounter = 0;
   do {
     NCCLCHECK(socketProgressState(sock));
+    INFO(NCCL_INIT, "stuck");
   } while (sock->asyncFlag == 0 &&
       (sock->abortFlag == NULL || __atomic_load_n(sock->abortFlag, __ATOMIC_ACQUIRE) == 0) &&
       (sock->state == ncclSocketStateConnecting ||
