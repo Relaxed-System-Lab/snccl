@@ -3,7 +3,7 @@
 #include "nccl.h"
 
 #define DEST_PORT "8001"
-#define DEST_IP "127.0.0.1"
+#define DEST_IP "192.168.1.148"
 
 // MQTT connection event handler function
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
@@ -93,13 +93,14 @@ ncclResult_t clientConncet() {
 
 ncclResult_t serverInit() {
   INFO(NCCL_INIT, "jiashu: serverInit");
+  return ncclSuccess;
   pthread_t thread1;
   pthread_t thread2;
   PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
   ncclSetThreadName(thread1, "NCCL Server1");
   INFO(NCCL_INIT, "jiashu: serverInit success");
-  //PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
-  //ncclSetThreadName(thread2, "NCCL Server2");
-  //INFO(NCCL_INIT, "jiashu: server2Init success");
+  PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
+  ncclSetThreadName(thread2, "NCCL Server2");
+  INFO(NCCL_INIT, "jiashu: server2Init success");
   return ncclSuccess;
 }
