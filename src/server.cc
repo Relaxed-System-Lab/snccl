@@ -28,19 +28,19 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-ncclResult_t serverInit() {
-  INFO(NCCL_INIT, "jiashu: serverInit");
-  struct mg_mgr mgr;
-  mg_mgr_init(&mgr);
+ncclResult_t ncclserverInit(){
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
   
-  // 监听本地端口 8000（可修改）
-  mg_listen(&mgr, "tcp://0.0.0.0:8000", ev_handler, NULL);
-  // 事件循环
-  while (true) mg_mgr_poll(&mgr, 50);
+    // 监听本地端口 8000（可修改）
+    mg_listen(&mgr, "tcp://0.0.0.0:8000", ev_handler, NULL);
+    // 事件循环
+    while (true) mg_mgr_poll(&mgr, 50);
   
-  mg_mgr_free(&mgr);
-  return ncclSuccess;
+    mg_mgr_free(&mgr);
+    return ncclSuccess;
 }
+
 
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_READ) {
@@ -52,7 +52,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-ncclResult_t server2Init() {
+ncclResult_t ncclserver2Init() {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
     mg_listen(&mgr, "tcp://0.0.0.0:8001", fn, NULL);  // 监听端口 8001
@@ -82,4 +82,18 @@ ncclResult_t clientConncet() {
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
     return ncclSuccess;
+}
+
+pthread_t thread1 = NULL;
+pthread_t thread2 = NULL;
+ncclResult_t serverInit() {
+  INFO(NCCL_INIT, "jiashu: serverInit");
+  if (thread1 == NULL){
+    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, proxyState), "pthread_create");
+    ncclSetThreadName(thread1, "NCCL Server1");
+  }
+  if (thread2 == NULL){
+    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, proxyState), "pthread_create");
+    ncclSetThreadName(thread1, "NCCL Server2");
+  }
 }
