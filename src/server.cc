@@ -28,14 +28,6 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-// static void timer_fn(void *arg) {
-//   struct mg_mgr *mgr = (struct mg_mgr *) arg;
-//   if (mgr == NULL) {
-//     struct mg_mqtt_opts opts = {.clean = true};
-//     mgr = mg_connect(mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT).buf, NULL, NULL);
-//   }
-// }
-
 ncclResult_t serverInit() {
   INFO(NCCL_INIT, "jiashu: serverInit");
   struct mg_mgr mgr;
@@ -43,11 +35,51 @@ ncclResult_t serverInit() {
   
   // 监听本地端口 8000（可修改）
   mg_listen(&mgr, "tcp://0.0.0.0:8000", ev_handler, NULL);
-  //mg_timer_add(&mgr, 3000, MG_TIMER_REPEAT | MG_TIMER_RUN_NOW, timer_fn, &mgr);
-  
   // 事件循环
   while (true) mg_mgr_poll(&mgr, 50);
   
   mg_mgr_free(&mgr);
   return ncclSuccess;
+}
+
+static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+    if (ev == MG_EV_READ) {
+        // 接收数据并打印日志（可替换为业务逻辑）
+        printf("Received data: %.*s\n", (int)c->recv.len, c->recv.buf);
+        c->recv.len = 0;  // 清空缓冲区
+        // 可选：发送响应回客户端（需通过转发服务器）
+        mg_send(c, "ACK\n", 4);
+    }
+}
+
+ncclResult_t server2Init() {
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
+    mg_listen(&mgr, "tcp://0.0.0.0:8001", fn, NULL);  // 监听端口 8001
+    while (true) mg_mgr_poll(&mgr, 50);
+    mg_mgr_free(&mgr);
+    return ncclSuccess;
+}
+
+static void client_handler(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+    if (ev == MG_EV_CONNECT) {
+        // 连接成功后发送目标地址头 + 数据
+        const char *dest = "DEST:192.168.1.100:1234\n"; // 动态目标地址
+        const char *payload = "Hello from client!";
+        mg_send(c, dest, strlen(dest));
+        mg_send(c, payload, strlen(payload));
+    } else if (ev == MG_EV_READ) {
+        // 处理目标服务器的响应（可选）
+        printf("Response: %.*s\n", (int)c->recv.len, c->recv.buf);
+        c->recv.len = 0;
+    }
+}
+
+ncclResult_t clientConncet() {
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
+    mg_connect(&mgr, "tcp://转发服务器IP:8000", client_handler, NULL); // 连接转发服务器
+    while (true) mg_mgr_poll(&mgr, 50);
+    mg_mgr_free(&mgr);
+    return 0;
 }
