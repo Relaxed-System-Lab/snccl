@@ -4,22 +4,31 @@
 
 #define DEST_PORT "8001"
 #define DEST_IP "192.168.1.148"
-
+#define SERVER2_ADDR 
 // MQTT connection event handler function
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_ACCEPT) {
         // 客户端连接时，创建到目标服务器的连接
-        struct mg_connection *dest = mg_connect(c->mgr, mg_str("tcp://" DEST_IP ":" DEST_PORT).buf, NULL, NULL);
+        struct mg_connection *dest = mg_connect(c->mgr, SERVER2_ADDR, NULL, NULL);
         if (dest) {
             dest->fn_data = c;  // 绑定客户端与目标连接
             c->fn_data = dest;
         }
     } else if (ev == MG_EV_READ) {
-        // 收到客户端数据时，转发到目标服务器
-        struct mg_connection *dest = (struct mg_connection *)c->fn_data;
-        if (dest && dest->is_connecting) {
-            mg_send(dest, c->recv.buf, c->recv.len);
-            c->recv.len = 0;  // 清空接收缓冲区
+        // 1. 解析 client1 数据包中的目标地址
+        struct mg_str *data = &c->recv;
+        if (data->len < 4) return; // 等待完整包头
+        
+        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->ptr);
+        char *target_addr = (char *)data->ptr + 2;
+        uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
+        
+        // 2. 动态连接 server2（若未连接）
+        struct mg_connection *server2_conn = mg_connect(c->mgr, SERVER2_ADDR, NULL, NULL);
+        if (server2_conn) {
+            // 3. 封装目标地址和数据，转发至 server2
+            mg_send(server2_conn, data->ptr, data->len);
+            c->recv.len = 0; // 清空接收缓冲区
         }
     } else if (ev == MG_EV_CLOSE) {
         // 连接关闭时，断开双向连接
@@ -47,11 +56,35 @@ void* ncclserverInit(void* args){
 
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_READ) {
-        // 接收数据并打印日志（可替换为业务逻辑）
-        printf("Received data: %.*s\n", (int)c->recv.len, c->recv.buf);
-        c->recv.len = 0;  // 清空缓冲区
-        // 可选：发送响应回客户端（需通过转发服务器）
-        mg_send(c, "ACK\n", 4);
+        // 1. 解析 server1 转发的数据包
+        struct mg_str *data = &c->recv;
+        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->ptr);
+        char *target_addr = (char *)data->ptr + 2;
+        uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
+        char *payload = target_addr + addr_len + 2;
+
+        // 2. 查找目标 client2
+        ClientEntry *entry;
+        HASH_FIND_STR(clients, target_addr, entry);
+        if (entry && entry->conn->is_connected) {
+            // 3. 转发数据到 client2
+            mg_send(entry->conn, payload, payload_len);
+        }
+        c->recv.len = 0; // 清空接收缓冲区
+    } else if (ev == MG_EV_ACCEPT) {
+        // 新 client2 连接时注册地址
+        ClientEntry *entry = (ClientEntry *)calloc(1, sizeof(ClientEntry));
+        snprintf(entry->addr, sizeof(entry->addr), "%s:%d", c->peer.ip, c->peer.port);
+        entry->conn = c;
+        HASH_ADD_STR(clients, addr, entry);
+    } else if (ev == MG_EV_CLOSE) {
+        // client2 断开时移除记录
+        ClientEntry *entry;
+        HASH_FIND_PTR(clients, &c, entry);
+        if (entry) {
+            HASH_DEL(clients, entry);
+            free(entry);
+        }
     }
 }
 
@@ -68,16 +101,14 @@ void* ncclserver2Init(void* args) {
     return NULL;
 }
 
-static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
+static void client2_handler(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     if (ev == MG_EV_CONNECT) {
-        // 连接成功后发送目标地址头 + 数据
-        const char *dest = "DEST:192.168.1.100:1234\n"; // 动态目标地址
-        const char *payload = "Hello from client!";
-        mg_send(c, dest, strlen(dest));
-        mg_send(c, payload, strlen(payload));
+        // 连接成功后发送注册信息（如自身地址）
+        const char *reg_msg = "REGISTER|192.168.1.2:8000";
+        mg_send(c, reg_msg, strlen(reg_msg));
     } else if (ev == MG_EV_READ) {
-        // 处理目标服务器的响应（可选）
-        printf("Response: %.*s\n", (int)c->recv.len, c->recv.buf);
+        // 接收 server2 转发的数据
+        printf("Client2 received: %.*s\n", (int)c->recv.len, c->recv.buf);
         c->recv.len = 0;
     }
 }
