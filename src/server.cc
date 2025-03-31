@@ -4,7 +4,8 @@
 
 #define DEST_PORT "8001"
 #define DEST_IP "192.168.1.148"
-#define SERVER2_ADDR 
+#define SERVER2_ADDR "tcp://192.168.1.148:8001"
+
 // MQTT connection event handler function
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_ACCEPT) {
@@ -19,15 +20,15 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         struct mg_str *data = &c->recv;
         if (data->len < 4) return; // 等待完整包头
         
-        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->ptr);
-        char *target_addr = (char *)data->ptr + 2;
+        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->buffer);
+        char *target_addr = (char *)data->buffer + 2;
         uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
         
         // 2. 动态连接 server2（若未连接）
         struct mg_connection *server2_conn = mg_connect(c->mgr, SERVER2_ADDR, NULL, NULL);
         if (server2_conn) {
             // 3. 封装目标地址和数据，转发至 server2
-            mg_send(server2_conn, data->ptr, data->len);
+            mg_send(server2_conn, data->buffer, data->len);
             c->recv.len = 0; // 清空接收缓冲区
         }
     } else if (ev == MG_EV_CLOSE) {
@@ -58,8 +59,8 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_READ) {
         // 1. 解析 server1 转发的数据包
         struct mg_str *data = &c->recv;
-        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->ptr);
-        char *target_addr = (char *)data->ptr + 2;
+        uint16_t addr_len = mg_ntohs(*(uint16_t *)data->buffer);
+        char *target_addr = (char *)data->buffer + 2;
         uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
         char *payload = target_addr + addr_len + 2;
 
