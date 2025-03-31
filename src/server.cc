@@ -94,7 +94,7 @@ ncclResult_t serverInit() {
     INFO(NCCL_INIT, "jiashu: serverInit success");
   }
   if (!thread2){
-    PTHREADCHECK(pthread_creaste(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
+    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
     ncclSetThreadName(thread1, "NCCL Server2");
   }
 }
