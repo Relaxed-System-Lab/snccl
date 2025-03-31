@@ -30,6 +30,8 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
 
 void* ncclserverInit(void* args){
     struct mg_mgr mgr;
+
+    INFO(NCCL_INIT, "mg_mgr_init");
     mg_mgr_init(&mgr);
   
     // 监听本地端口 8000（可修改）
@@ -39,6 +41,7 @@ void* ncclserverInit(void* args){
     while (true) mg_mgr_poll(&mgr, 50);
   
     mg_mgr_free(&mgr);
+    return NULL;
 }
 
 
@@ -58,6 +61,7 @@ void* ncclserver2Init(void* args) {
     mg_listen(&mgr, "tcp://192.168.0.1:8001", fn, NULL);  // 监听端口 8001
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
+    return NULL;
 }
 
 static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
@@ -83,19 +87,15 @@ ncclResult_t clientConncet() {
     return ncclSuccess;
 }
 
-pthread_t thread1 ;
-pthread_t thread2 ;
 ncclResult_t serverInit() {
   INFO(NCCL_INIT, "jiashu: serverInit");
-  if (!thread1){
-    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
-    ncclSetThreadName(thread1, "NCCL Server1");
-
-    INFO(NCCL_INIT, "jiashu: serverInit success");
-  }
-  if (!thread2){
-    PTHREADCHECK(pthread_create(&thread1, NULL, ncclserver2Init, nullptr), "pthread_create");
-    ncclSetThreadName(thread1, "NCCL Server2");
-    INFO(NCCL_INIT, "jiashu: server2Init success");
-  }
+  pthread_t thread1;
+  pthread_t thread2;
+  PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
+  ncclSetThreadName(thread1, "NCCL Server1");
+  INFO(NCCL_INIT, "jiashu: serverInit success");
+  //PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
+  //ncclSetThreadName(thread2, "NCCL Server2");
+  //INFO(NCCL_INIT, "jiashu: server2Init success");
+  return ncclSuccess;
 }
