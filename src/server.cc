@@ -42,7 +42,7 @@ ncclResult_t serverInit() {
   return ncclSuccess;
 }
 
-static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_READ) {
         // 接收数据并打印日志（可替换为业务逻辑）
         printf("Received data: %.*s\n", (int)c->recv.len, c->recv.buf);
@@ -61,7 +61,7 @@ ncclResult_t server2Init() {
     return ncclSuccess;
 }
 
-static void client_handler(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_CONNECT) {
         // 连接成功后发送目标地址头 + 数据
         const char *dest = "DEST:192.168.1.100:1234\n"; // 动态目标地址
