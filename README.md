@@ -1,6 +1,13 @@
-# NCCL
+# SNCCL
 
 Optimized primitives for inter-GPU communication.
+
+This project is based on ​NCCL (NVIDIA Collective Communications Library) but extends its capabilities to support ​cross-data-center collective communication. It utilizes ​Mongoose (https://github.com/cesanta/mongoose/tree/master) as the TCP connection solution for inter-data-center communication.
+
+During deployment:
+
+Users only need to modify the ​SERVER_ADDR parameter in server.h to establish connections.
+The current implementation does ​not include code for ​SERVER_ADDR broadcasting in multi-machine scenarios. Once SERVER_ADDR is properly configured, GPUs across data centers will automatically transmit data through pre-established TCP connections between servers.
 
 ## Introduction
 
