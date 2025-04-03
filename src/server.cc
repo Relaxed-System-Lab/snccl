@@ -78,7 +78,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
         // 2. 查找目标 client2
         ClientEntry *entry;
         HASH_FIND_STR(clients, target_addr, entry);
-        if (entry && entry->conn->is_connected) {
+        if (entry && entry->conn->is_connecting) {
             // 3. 转发数据到 client2
             mg_send(entry->conn, payload, payload_len);
         }
@@ -86,7 +86,9 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     } else if (ev == MG_EV_ACCEPT) {
         // 新 client2 连接时注册地址
         ClientEntry *entry = (ClientEntry *)calloc(1, sizeof(ClientEntry));
-        snprintf(entry->addr, sizeof(entry->addr), "%s:%d", c->peer.ip, c->peer.port);
+        char ip_str[46](@ref); // 足够存储 IPv6 地址
+        mg_ntoa(&c->rem, ip_str, sizeof(ip_str));
+        snprintf(entry->addr, sizeof(entry->addr), "%s:%hu", ip_str, mg_ntohs(c->rem.port));
         entry->conn = c;
         HASH_ADD_STR(clients, addr, entry);
     } else if (ev == MG_EV_CLOSE) {
@@ -128,7 +130,7 @@ static void client2_handler(struct mg_connection *c, int ev, void *ev_data, void
 ncclResult_t clientConncet() {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    mg_connect(&mgr, "tcp://转发服务器IP:8000", client_handler, NULL); // 连接转发服务器
+    mg_connect(&mgr, "tcp://转发服务器IP:8000", client2_handler, NULL); // 连接转发服务器
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
     return ncclSuccess;
