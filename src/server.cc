@@ -9,6 +9,8 @@ typedef struct {
     UT_hash_handle hh;      // 哈希表句柄
 } ClientEntry;
 
+static ClientEntry *clients = NULL;
+
 #define DEST_PORT "8001"
 #define DEST_IP "192.168.1.148"
 #define SERVER2_ADDR "tcp://192.168.1.148:8001"
