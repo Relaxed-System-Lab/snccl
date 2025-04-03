@@ -3,6 +3,17 @@
 #include "nccl.h"
 #include "uthash.h"
 
+#include <arpa/inet.h>  // Linux/macOS
+// 或 #include <ws2tcpip.h>  // Windows
+
+const char *mg_ntop(const struct mg_addr *addr, char *buf, size_t len) {
+    if (addr->is_ip6) {
+        return inet_ntop(AF_INET6, &addr->ip6, buf, len);
+    } else {
+        return inet_ntop(AF_INET, &addr->ip4, buf, len);
+    }
+}
+
 typedef struct {
     char addr[64];          // 客户端地址（如 "192.168.1.2:8000"）
     struct mg_connection *conn; // 对应的连接句柄
@@ -13,6 +24,7 @@ static ClientEntry *clients = NULL;
 
 #define DEST_PORT "8001"
 #define DEST_IP "192.168.1.148"
+#define SERVER1_ADDR "tcp://192.168.1.148:8000"
 #define SERVER2_ADDR "tcp://192.168.1.148:8001"
 
 // MQTT connection event handler function
@@ -56,7 +68,7 @@ void* ncclserverInit(void* args){
   
     // 监听本地端口 8000（可修改）
     INFO(NCCL_INIT, "mg_mgr_init success");
-    mg_listen(&mgr, "tcp://192.168.1.148:8000", ev_handler, NULL);
+    mg_listen(&mgr, SERVER1_ADDR, ev_handler, NULL);
     // 事件循环
     while (true) mg_mgr_poll(&mgr, 50);
   
@@ -109,16 +121,16 @@ void* ncclserver2Init(void* args) {
     mg_mgr_init(&mgr);
 
     INFO(NCCL_INIT, "mg_mgr_init success");
-    mg_listen(&mgr, "tcp://192.168.1.148:8001", fn, NULL);  // 监听端口 8001
+    mg_listen(&mgr, SERVER2_ADDR, fn, NULL);  // 监听端口 8001
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
     return NULL;
 }
 
-static void client2_handler(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_CONNECT) {
         // 连接成功后发送注册信息（如自身地址）
-        const char *reg_msg = "REGISTER|192.168.1.2:8000";
+        const char *reg_msg = SERVER1_ADDR;
         mg_send(c, reg_msg, strlen(reg_msg));
     } else if (ev == MG_EV_READ) {
         // 接收 server2 转发的数据
@@ -130,7 +142,7 @@ static void client2_handler(struct mg_connection *c, int ev, void *ev_data, void
 ncclResult_t clientConncet() {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    mg_connect(&mgr, "tcp://转发服务器IP:8000", client2_handler, NULL); // 连接转发服务器
+    mg_connect(&mgr, SERVER1_ADDR, client_handler, NULL); // 连接转发服务器
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
     return ncclSuccess;
