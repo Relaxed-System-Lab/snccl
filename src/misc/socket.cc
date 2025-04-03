@@ -790,7 +790,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     memset(&sock->addr, 0, sizeof(union ncclSocketAddress));
   }
 
-  sock->backupAddr = &sock->addr;
+  memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
 
   struct sockaddr sa;
   struct sockaddr_in addr_in;
@@ -803,7 +803,6 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   memcpy(sa.sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
   memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
   sa.sa_family = AF_INET;
-  sa.sa_len = sizeof(struct sockaddr_in);
 
   memcpy(&sock->addr, &sa, sizeof(union ncclSocketAddress));  // 清空结构体
   sock->salen = sizeof(struct sockaddr_in);
