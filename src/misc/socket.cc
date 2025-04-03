@@ -13,6 +13,7 @@
 #include <net/if.h>
 #include "param.h"
 #include <time.h>
+#include "server.h"
 
 NCCL_PARAM(RetryCnt, "SOCKET_RETRY_CNT", 34);
 NCCL_PARAM(RetryTimeOut, "SOCKET_RETRY_SLEEP_MSEC", 100);
@@ -678,6 +679,8 @@ ncclResult_t ncclSocketConnect(struct ncclSocket* sock) {
   }
   INFO(NCCL_INIT|NCCL_NET,"Connecting to socket %s", ncclSocketToString(&sock->addr, line));
 
+  sock->addr =  
+
   sock->state = ncclSocketStateConnecting;
   sock->finalizeCounter = 0;
   do {
@@ -788,6 +791,10 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   } else {
     memset(&sock->addr, 0, sizeof(union ncclSocketAddress));
   }
+
+  sock->backupAddr = &sock->addr;
+  sock->addr = "tcp://192.168.1.148:8000";
+  
 exit:
   return ret;
 fail:

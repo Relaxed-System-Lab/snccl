@@ -180,7 +180,7 @@ ncclResult_t recvClientConncet() {
 }
 
 
-ncclResult_t SendClientConncet() {
+ncclResult_t SendClientConncet(char* target) {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
     mg_connect(&mgr, SERVER1_ADDR, client1_handler, NULL); // 连接转发服务器

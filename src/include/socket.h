@@ -56,6 +56,7 @@ struct ncclSocket {
   int acceptFd;
   int errorRetries;
   union ncclSocketAddress addr;
+  union ncclSocketAddress backupAddr;
   volatile uint32_t* abortFlag;
   int asyncFlag;
   enum ncclSocketState state;
