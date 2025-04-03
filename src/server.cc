@@ -85,10 +85,10 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
         struct mg_iobuf *recv_buf = &c->recv;
         struct mg_str data = mg_str_n((const char *)recv_buf->buf, recv_buf->len);
 
-        custom_packet *pkt = (custom_packet *)data->buf;
+        custom_packet *pkt = (custom_packet *)data.buf;
         uint16_t addr_len = ntohs(pkt->info_len);
         char *target_addr = pkt->info;
-        char *payload = pkt->info + info_len;
+        char *payload = pkt->info + addr_len;
         uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
 
         // 2. 查找目标 client2
@@ -134,7 +134,7 @@ void* ncclserver2Init(void* args) {
 static void client1_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_CONNECT) {
         // 连接 Server1 成功后发送测试数据
-        const char *target_info = CLIENT2_ADDR;
+        const char *target_info = SERVER2_ADDR;
         const char *data = "Hello from Client1";
         uint16_t info_len = htons(strlen(target_info));
 
@@ -147,11 +147,10 @@ static void client1_handler(struct mg_connection *c, int ev, void *ev_data) {
 
         mg_send(c, pkt, total_len);  // 发送报文
         free(pkt);
-    } else if (ev == MG_EV_RECV) {
+    } else if (ev == MG_EV_READ) {
         // 接收 Server1 返回的响应（如转发结果）
-        struct mbuf *io = &c->recv_mbuf;
-        printf("Received response: %.*s\n", (int)io->len, io->buf);
-        mbuf_remove(io, io->len);     // 清空接收缓冲区
+        printf("Client2 received: %.*s\n", (int)c->recv.len, c->recv.buf);
+        c->recv.len = 0;
     } else if (ev == MG_EV_CLOSE) {
         printf("Connection closed\n");
     }
@@ -167,6 +166,8 @@ static void client2_handler(struct mg_connection *c, int ev, void *ev_data) {
         // 接收 server2 转发的数据
         printf("Client2 received: %.*s\n", (int)c->recv.len, c->recv.buf);
         c->recv.len = 0;
+    } else if (ev == MG_EV_CLOSE) {
+        printf("Connection closed\n");
     }
 }
 
