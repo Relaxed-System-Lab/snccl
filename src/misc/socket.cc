@@ -791,7 +791,12 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   }
 
   sock->backupAddr = &sock->addr;
-  sock->addr = "tcp://192.168.1.148:8000";
+  memset(&sock->addr, 0, sizeof(union ncclSocketAddress));  // 清空结构体
+  sock->addr.sa.sa_family = AF_INET;
+  sock->addr.sa.sa_len = 16;
+  sock->addr.sa.sa_data = inet_addr("192.168.1.148:8000");
+  sock->salen = (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+  NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
 
 exit:
   return ret;
