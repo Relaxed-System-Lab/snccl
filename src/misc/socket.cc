@@ -791,11 +791,21 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   }
 
   sock->backupAddr = &sock->addr;
+
+  struct sockaddr sa;
+  struct sockaddr_in addr_in;
+  addr_in.sin_port = htons(8000);              // 端口号（网络字节序）
+  addr_in.sin_addr.s_addr = inet_addr("192.168.1.148"); // IP 地址（网络字节序）
+  memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
+
   memset(&sock->addr, 0, sizeof(union ncclSocketAddress));  // 清空结构体
-  sock->addr.sa.sa_family = AF_INET;
-  sock->addr.sa.sa_len = 16;
-  sock->addr.sa.sa_data = inet_addr("192.168.1.148:8000");
-  sock->salen = (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+  // 将 sockaddr_in 转换为 sockaddr 的 sa_data 
+  memcpy(sock->addr->sa_data, &addr_in.sin_port, 2);       // 前 2 字节为端口
+  memcpy(sock->addr->sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
+  memset(sock->addr->sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
+  sock->addr->sa_family = AF_INET;
+  sock->addr->salen = sizeof(struct sockaddr_in);
+  sock->salen = sizeof(struct sockaddr_in);
   NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
 
 exit:
