@@ -86,7 +86,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     } else if (ev == MG_EV_ACCEPT) {
         // 新 client2 连接时注册地址
         ClientEntry *entry = (ClientEntry *)calloc(1, sizeof(ClientEntry));
-        char ip_str[46](@ref); // 足够存储 IPv6 地址
+        char ip_str[46]; // 足够存储 IPv6 地址
         mg_ntoa(&c->rem, ip_str, sizeof(ip_str));
         snprintf(entry->addr, sizeof(entry->addr), "%s:%hu", ip_str, mg_ntohs(c->rem.port));
         entry->conn = c;
