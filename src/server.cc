@@ -1,13 +1,6 @@
 #include "mongoose.h"
 #include "comm.h"
 #include "nccl.h"
-#include <uthash.h> // 哈希表管理 client2 连接
-
-typedef struct {
-    char addr[64];          // 客户端地址（如 "192.168.1.2:8000"）
-    struct mg_connection *conn; // 对应的连接句柄
-    UT_hash_handle hh;      // 哈希表句柄
-} ClientEntry;
 
 #define DEST_PORT "8001"
 #define DEST_IP "192.168.1.148"
