@@ -15,10 +15,16 @@ const char *mg_ntop(const struct mg_addr *addr, char *buf, size_t len) {
 }
 
 typedef struct {
-    char addr[64];          // 客户端地址（如 "192.168.1.2:8000"）
+    char addr[64];          // 客户端地址
     struct mg_connection *conn; // 对应的连接句柄
     UT_hash_handle hh;      // 哈希表句柄
 } ClientEntry;
+
+typedef struct {
+    uint16_t info_len;  // 目标信息长度
+    char info[32];       // 目标信息
+    // char data[];     // 实际数据（柔性数组）
+} custom_packet;
 
 static ClientEntry *clients = NULL;
 
@@ -41,10 +47,6 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         struct mg_iobuf *recv_buf = &c->recv;
         struct mg_str data = mg_str_n((const char *)recv_buf->buf, recv_buf->len);
         if (data.len < 4) return; // 等待完整包头
-        
-        uint16_t addr_len = mg_ntohs(*(uint16_t *)data.buf);
-        char *target_addr = (char *)data.buf + 2;
-        uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
         
         // 2. 动态连接 server2（若未连接）
         struct mg_connection *server2_conn = mg_connect(c->mgr, SERVER2_ADDR, NULL, NULL);
@@ -82,10 +84,12 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
         // 1. 解析 server1 转发的数据包
         struct mg_iobuf *recv_buf = &c->recv;
         struct mg_str data = mg_str_n((const char *)recv_buf->buf, recv_buf->len);
-        uint16_t addr_len = mg_ntohs(*(uint16_t *)data.buf);
-        char *target_addr = (char *)data.buf + 2;
+
+        custom_packet *pkt = (custom_packet *)data->buf;
+        uint16_t addr_len = ntohs(pkt->info_len);
+        char *target_addr = pkt->info;
+        char *payload = pkt->info + info_len;
         uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
-        char *payload = target_addr + addr_len + 2;
 
         // 2. 查找目标 client2
         ClientEntry *entry;
@@ -127,7 +131,34 @@ void* ncclserver2Init(void* args) {
     return NULL;
 }
 
-static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
+static void client1_handler(struct mg_connection *c, int ev, void *ev_data) {
+    if (ev == MG_EV_CONNECT) {
+        // 连接 Server1 成功后发送测试数据
+        const char *target_info = CLIENT2_ADDR;
+        const char *data = "Hello from Client1";
+        uint16_t info_len = htons(strlen(target_info));
+
+        // 构造自定义报文
+        size_t total_len = sizeof(custom_packet) + strlen(target_info) + strlen(data);
+        custom_packet *pkt = (custom_packet *)malloc(total_len);
+        pkt->info_len = info_len;
+        memcpy(pkt->info, target_info, strlen(target_info));
+        memcpy(pkt->info + strlen(target_info), data, strlen(data));
+
+        mg_send(c, pkt, total_len);  // 发送报文
+        free(pkt);
+    } else if (ev == MG_EV_RECV) {
+        // 接收 Server1 返回的响应（如转发结果）
+        struct mbuf *io = &c->recv_mbuf;
+        printf("Received response: %.*s\n", (int)io->len, io->buf);
+        mbuf_remove(io, io->len);     // 清空接收缓冲区
+    } else if (ev == MG_EV_CLOSE) {
+        printf("Connection closed\n");
+    }
+}
+
+
+static void client2_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_CONNECT) {
         // 连接成功后发送注册信息（如自身地址）
         const char *reg_msg = SERVER1_ADDR;
@@ -139,24 +170,32 @@ static void client_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-ncclResult_t clientConncet() {
+ncclResult_t recvClientConncet() {
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    mg_connect(&mgr, SERVER1_ADDR, client_handler, NULL); // 连接转发服务器
+    mg_connect(&mgr, SERVER2_ADDR, client2_handler, NULL); // 连接转发服务器
+    while (true) mg_mgr_poll(&mgr, 50);
+    mg_mgr_free(&mgr);
+    return ncclSuccess;
+}
+
+
+ncclResult_t SendClientConncet() {
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
+    mg_connect(&mgr, SERVER1_ADDR, client1_handler, NULL); // 连接转发服务器
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
     return ncclSuccess;
 }
 
 ncclResult_t serverInit() {
-  INFO(NCCL_INIT, "jiashu: serverInit");
   pthread_t thread1;
   pthread_t thread2;
   PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
   ncclSetThreadName(thread1, "NCCL Server1");
-  INFO(NCCL_INIT, "jiashu: serverInit success");
   PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
   ncclSetThreadName(thread2, "NCCL Server2");
-  INFO(NCCL_INIT, "jiashu: server2Init success");
+  INFO(NCCL_INIT, "Forwarding Server Init Succsss");
   return ncclSuccess;
 }

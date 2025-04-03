@@ -5,5 +5,7 @@
 
 ncclResult_t serverInit();
 ncclResult_t clientInit();
+ncclResult_t SendClientConncet();
+ncclResult_t recvClientConncet();
 
 #endif
