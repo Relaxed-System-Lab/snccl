@@ -757,7 +757,7 @@ exit:
   return ret;
 }
 
-ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddress* addr, uint64_t magic, enum ncclSocketType type, volatile uint32_t* abortFlag, int asyncFlag, int customRetry) {
+ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddress* addr, uint64_t magic, enum ncclSocketType type, volatile uint32_t* abortFlag, int asyncFlag, int customRetry, bool connectToServer) {
   ncclResult_t ret = ncclSuccess;
 
   if (sock == NULL) goto exit;
@@ -770,6 +770,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   sock->fd = -1;
   sock->acceptFd = -1;
   sock->customRetry = customRetry;
+  sock->connectToServer = connectToServer;
 
   if (addr) {
     /* IPv4/IPv6 support */
