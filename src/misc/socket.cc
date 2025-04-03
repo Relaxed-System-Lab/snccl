@@ -809,7 +809,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
 
   char line[SOCKET_NAME_MAXLEN+1];
-  INFO(NCCL_INIT, "jiashu: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line));
+  INFO(NCCL_INIT|NCCL_NET, "jiashu: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line));
 
 exit:
   return ret;
