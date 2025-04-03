@@ -793,25 +793,27 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
 
   memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
 
-  struct sockaddr sa;
-  struct sockaddr_in addr_in;
-  addr_in.sin_port = htons(8000);              // 端口号（网络字节序）
-  addr_in.sin_addr.s_addr = inet_addr("192.168.1.148"); // IP 地址（网络字节序）
-  memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
+  if (connectToServer) {
+    struct sockaddr sa;
+    struct sockaddr_in addr_in;
+    addr_in.sin_port = htons(8000);              // 端口号（网络字节序）
+    addr_in.sin_addr.s_addr = inet_addr("192.168.1.148"); // IP 地址（网络字节序）
+    memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
 
-  // 将 sockaddr_in 转换为 sockaddr 的 sa_data
-  memcpy(sa.sa_data, &addr_in.sin_port, 2);       // 前 2 字节为端口
-  memcpy(sa.sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
-  memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
-  sa.sa_family = AF_INET;
+    // 将 sockaddr_in 转换为 sockaddr 的 sa_data
+    memcpy(sa.sa_data, &addr_in.sin_port, 2);       // 前 2 字节为端口
+    memcpy(sa.sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
+    memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
+    sa.sa_family = AF_INET;
 
-  memcpy(&sock->addr, &sa, sizeof(sockaddr));  // 清空结构体
-  sock->salen = sizeof(struct sockaddr_in);
-  NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
+    memcpy(&sock->addr, &sa, sizeof(sockaddr));  // 清空结构体
+    sock->salen = sizeof(struct sockaddr_in);
+    NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
 
-  char line[SOCKET_NAME_MAXLEN+1];
-  INFO(NCCL_INIT|NCCL_NET, "jiashu: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line));
-
+    char line[SOCKET_NAME_MAXLEN+1];
+    INFO(NCCL_INIT|NCCL_NET, "jiashu: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line));
+  }
+  
 exit:
   return ret;
 fail:
