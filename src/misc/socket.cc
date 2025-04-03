@@ -821,9 +821,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
 
   if (connectToServer) {
-    char line[SOCKET_NAME_MAXLEN+1];
-    char line2[SOCKET_NAME_MAXLEN+1];
-    INFO(NCCL_INIT|NCCL_NET, "jiashu: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
+    sock->mgr = new mg_mgr;
     mg_mgr_init(sock->mgr);
     struct sockaddr sa;
     struct sockaddr_in addr_in;
@@ -840,6 +838,10 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     memcpy(&sock->addr, &sa, sizeof(sockaddr));  // 清空结构体
     sock->salen = sizeof(struct sockaddr_in);
     NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
+    char line[SOCKET_NAME_MAXLEN+1];
+    char line2[SOCKET_NAME_MAXLEN+1];
+    INFO(NCCL_INIT|NCCL_NET, "jiashu: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
+
   }
   
 exit:
