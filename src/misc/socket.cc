@@ -659,7 +659,7 @@ ncclResult_t ncclSocketReady(struct ncclSocket* sock, int *running) {
   return ncclSuccess;
 }
 
-static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_CONNECT) { 
         // 连接成功后发送字符串（含明确长度计算）
         const char *str = "CLIENT INITIAL DATA\n";
