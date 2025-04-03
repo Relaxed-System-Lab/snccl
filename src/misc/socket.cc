@@ -798,15 +798,14 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   addr_in.sin_addr.s_addr = inet_addr("192.168.1.148"); // IP 地址（网络字节序）
   memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
 
-  // 将 sockaddr_in 转换为 sockaddr 的 sa_data 
-  struct sockaddr sa;
+  // 将 sockaddr_in 转换为 sockaddr 的 sa_data
   memcpy(sa.sa_data, &addr_in.sin_port, 2);       // 前 2 字节为端口
   memcpy(sa.sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
   memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
-  sa->sa_family = AF_INET;
-  sa->salen = sizeof(struct sockaddr_in);
-  
-  memset(&sock->addr, sa, sizeof(union ncclSocketAddress));  // 清空结构体
+  sa.sa_family = AF_INET;
+  sa.sa_len = sizeof(struct sockaddr_in);
+
+  memcpy(&sock->addr, sa, sizeof(union ncclSocketAddress));  // 清空结构体
   sock->salen = sizeof(struct sockaddr_in);
   NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
 
