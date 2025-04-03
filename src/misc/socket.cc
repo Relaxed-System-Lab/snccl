@@ -14,6 +14,7 @@
 #include "param.h"
 #include <time.h>
 #include "server.h"
+#include "mongoose.h"
 
 NCCL_PARAM(RetryCnt, "SOCKET_RETRY_CNT", 34);
 NCCL_PARAM(RetryTimeOut, "SOCKET_RETRY_SLEEP_MSEC", 100);
@@ -658,7 +659,33 @@ ncclResult_t ncclSocketReady(struct ncclSocket* sock, int *running) {
   return ncclSuccess;
 }
 
+static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+    if (ev == MG_EV_CONNECT) { 
+        // 连接成功后发送字符串（含明确长度计算）
+        const char *str = "CLIENT INITIAL DATA\n";
+        mg_send(c, str, strlen(str)); // 明确指定数据长度
+        // 发送二进制数据示例（结构体）
+        struct {
+            uint8_t type;
+            uint32_t value;
+        } binary_data = {0x01, htonl(12345)}; // 注意字节序转换
+        mg_send(c, &binary_data, sizeof(binary_data));
+    } else if (ev == MG_EV_READ) {
+        // 接收响应处理（与发送方式无关）
+        struct mg_iobuf *rx = &c->recv;
+        printf("Recv[%d]: %.*s", (int)rx->len, (int)rx->len, rx->buf);
+        rx->len = 0; // 清空接收缓冲区
+    } else if (ev == MG_EV_CLOSE) {
+        printf("Connection closed\n");
+    }
+}
+
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock) {
+  if (sock->connectToServer) {
+    mg_connect(&sock->mgr, SERVER1_ADDR, fn, NULL);
+    return ncclSuccess;
+  }
+
 //#ifdef ENABLE_TRACE
   char line[SOCKET_NAME_MAXLEN+1];
 //#endif
@@ -794,6 +821,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
 
   if (connectToServer) {
+    mg_mgr_init(&sock->mgr);
     struct sockaddr sa;
     struct sockaddr_in addr_in;
     addr_in.sin_port = htons(8000);              // 端口号（网络字节序）
@@ -843,6 +871,14 @@ ncclResult_t ncclSocketWait(int op, struct ncclSocket* sock, void* ptr, int size
 }
 
 ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
+  if (sock->connectToServer) {
+    struct mg_connection *c = sock->mgr.conns;
+    if (c->is_connected) {
+      mg_send(c, ptr, size);
+    }
+    return ncclSuccess;
+  }
+
   int offset = 0;
   if (sock == NULL) {
     WARN("ncclSocketSend: pass NULL socket");
@@ -857,6 +893,10 @@ ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
 }
 
 ncclResult_t ncclSocketRecv(struct ncclSocket* sock, void* ptr, int size) {
+  if (sock->connectToServer) {
+    return ncclSuccess;
+  }
+
   int offset = 0;
   if (sock == NULL) {
     WARN("ncclSocketRecv: pass NULL socket");

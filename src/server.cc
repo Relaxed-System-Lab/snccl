@@ -28,11 +28,6 @@ typedef struct {
 
 static ClientEntry *clients = NULL;
 
-#define DEST_PORT "8001"
-#define DEST_IP "192.168.1.148"
-#define SERVER1_ADDR "tcp://192.168.1.148:8000"
-#define SERVER2_ADDR "tcp://192.168.1.148:8001"
-
 // MQTT connection event handler function
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_ACCEPT) {

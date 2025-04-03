@@ -58,6 +58,7 @@ struct ncclSocket {
   union ncclSocketAddress addr;
   union ncclSocketAddress backupAddr;
   bool connectToServer;
+  mg_mgr* mgr;
   volatile uint32_t* abortFlag;
   int asyncFlag;
   enum ncclSocketState state;
