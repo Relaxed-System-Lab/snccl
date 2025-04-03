@@ -682,7 +682,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock) {
   if (sock->connectToServer) {
-    mg_connect(&sock->mgr, SERVER1_ADDR, fn, NULL);
+    mg_connect(sock->mgr, SERVER1_ADDR, fn, NULL);
     return ncclSuccess;
   }
 
@@ -821,7 +821,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
 
   if (connectToServer) {
-    mg_mgr_init(&sock->mgr);
+    mg_mgr_init(sock->mgr);
     struct sockaddr sa;
     struct sockaddr_in addr_in;
     addr_in.sin_port = htons(8000);              // 端口号（网络字节序）
@@ -872,8 +872,8 @@ ncclResult_t ncclSocketWait(int op, struct ncclSocket* sock, void* ptr, int size
 
 ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
   if (sock->connectToServer) {
-    struct mg_connection *c = sock->mgr.conns;
-    if (c->is_connected) {
+    struct mg_connection *c = sock->mgr->conns;
+    if (c->is_connecting) {
       mg_send(c, ptr, size);
     }
     return ncclSuccess;
