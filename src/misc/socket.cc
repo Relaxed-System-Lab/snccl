@@ -805,7 +805,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   sa.sa_family = AF_INET;
   sa.sa_len = sizeof(struct sockaddr_in);
 
-  memcpy(&sock->addr, sa, sizeof(union ncclSocketAddress));  // 清空结构体
+  memcpy(&sock->addr, &sa, sizeof(union ncclSocketAddress));  // 清空结构体
   sock->salen = sizeof(struct sockaddr_in);
   NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
 
