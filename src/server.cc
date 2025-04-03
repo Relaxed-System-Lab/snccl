@@ -42,6 +42,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
             dest->fn_data = c;  // 绑定客户端与目标连接
             c->fn_data = dest;
         }
+        INFO(NCCL_INIT, "jiashu: connecting to server2");
     } else if (ev == MG_EV_READ) {
         // 1. 解析 client1 数据包中的目标地址
         struct mg_iobuf *recv_buf = &c->recv;
@@ -55,6 +56,8 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
             mg_send(server2_conn, data.buf, data.len);
             c->recv.len = 0; // 清空接收缓冲区
         }
+
+        INFO(NCCL_INIT, "jiashu:send to server2");
     } else if (ev == MG_EV_CLOSE) {
         // 连接关闭时，断开双向连接
         struct mg_connection *dest = (struct mg_connection *)c->fn_data;
