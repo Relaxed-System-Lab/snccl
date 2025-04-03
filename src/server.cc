@@ -2,6 +2,7 @@
 #include "comm.h"
 #include "nccl.h"
 #include "uthash.h"
+#include "server.h"
 
 #include <arpa/inet.h>  // Linux/macOS
 // 或 #include <ws2tcpip.h>  // Windows
