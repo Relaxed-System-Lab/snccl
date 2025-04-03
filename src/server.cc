@@ -8,9 +8,9 @@
 
 const char *mg_ntop(const struct mg_addr *addr, char *buf, size_t len) {
     if (addr->is_ip6) {
-        return inet_ntop(AF_INET6, &addr->ip6, buf, len);
+        return inet_ntop(AF_INET6, &addr->ip, buf, len);
     } else {
-        return inet_ntop(AF_INET, &addr->ip4, buf, len);
+        return inet_ntop(AF_INET, &addr->ip, buf, len);
     }
 }
 
