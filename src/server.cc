@@ -156,7 +156,6 @@ static void client1_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-
 static void client2_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_CONNECT) {
         // 连接成功后发送注册信息（如自身地址）
