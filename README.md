@@ -80,4 +80,5 @@ $ ./build/all_reduce_perf -b 8 -e 256M -f 2 -g <ngpus>
 
 ## Copyright
 
-All source code and accompanying documentation is copyright (c) 2015-2020, NVIDIA CORPORATION. All rights reserved.
+The original source code and accompanying documentation is copyright (c) 2015-2020, NVIDIA CORPORATION. 
+Our additional implementation follows the open-source agreement between HKUST and Inspur Inc.
