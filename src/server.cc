@@ -70,7 +70,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         struct mg_connection *peer = (struct mg_connection *)c->fn_data;
         if (peer && !peer->is_closing) {
             peer->is_closing = 1; // 安全关闭对端连接
-            INFO(NCCL_SHUTDOWN, "SNCCL: Closing peer connection");
+            INFO(NCCL_NET, "SNCCL: Closing peer connection");
         }
     }
 }
