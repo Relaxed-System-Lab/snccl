@@ -6,9 +6,9 @@ from collections import defaultdict
 
 # 配置参数
 LISTEN_IP = "0.0.0.0"  # 监听所有网络接口
-LISTEN_PORT = 5201
+LISTEN_PORT = 8080
 STAT_INTERVAL = 2  # 吞吐量统计间隔（秒）
-TARGET_IP = "172.20.93.148"  # 仅统计流向此IP的流量（可选）
+TARGET_IP = "172.27.109.125"  # 仅统计流向此IP的流量（可选）
 
 class ThroughputMonitor:
     def __init__(self):

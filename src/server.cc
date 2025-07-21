@@ -28,8 +28,6 @@ typedef struct {
 } custom_packet;
 
 static ClientEntry *clients = NULL;
-
-// MQTT connection event handler function
 static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_ACCEPT) {
         // 客户端连接时，创建到目标服务器的连接
@@ -37,27 +35,44 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         if (dest) {
             dest->fn_data = c;  // 绑定客户端与目标连接
             c->fn_data = dest;
+            INFO(NCCL_INIT, "SNCCL: Connected to target server");
         }
-        INFO(NCCL_INIT, "jiashu: connecting to server2");
     } else if (ev == MG_EV_READ) {
-        // 1. 解析 client1 数据包中的目标地址
-        struct mg_iobuf *recv_buf = &c->recv;
-        struct mg_str data = mg_str_n((const char *)recv_buf->buf, recv_buf->len);
-        if (data.len < 4) return; // 等待完整包头
-        
-        // 2. 动态连接 server2（若未连接）
-        struct mg_connection *server2_conn = mg_connect(c->mgr, SERVER2_ADDR, NULL, NULL);
-        if (server2_conn) {
-            // 3. 封装目标地址和数据，转发至 server2
-            mg_send(server2_conn, data.buf, data.len);
-            c->recv.len = 0; // 清空接收缓冲区
-        }
+        // 判断数据来源：客户端 or 目标服务器
+        if (c->fn_data != NULL) { 
+            // 情况1：数据来自客户端 → 转发至目标服务器[6](@ref)
+            struct mg_connection *dest = (struct mg_connection *)c->fn_data;
+            mg_send(dest, c->recv.buf, c->recv.len);
+            c->recv.len = 0; // 清空客户端缓冲区
+            INFO(NCCL_NET, "SNCCL: Forwarded %d bytes to server2", c->recv.len);
+        } else {
+            struct mg_iobuf *recv_buf = &c->recv;
+            struct mg_str data = mg_str_n((const char *)recv_buf->buf, recv_buf->len);
 
-        INFO(NCCL_INIT, "jiashu:send to server2");
+            custom_packet *pkt = (custom_packet *)data.buf;
+            uint16_t addr_len = ntohs(pkt->info_len);
+            char *target_addr = pkt->info;
+            char *payload = pkt->info + addr_len;
+            uint16_t payload_len = mg_ntohs(*(uint16_t *)(target_addr + addr_len));
+
+            // 2. 查找目标 client2
+            ClientEntry *entry;
+            HASH_FIND_STR(clients, target_addr, entry);
+            if (entry && entry->conn->is_connecting) {
+                // 3. 转发数据到 client2
+                mg_send(entry->conn, payload, payload_len);
+            }
+            c->recv.len = 0; // 清空接收缓冲区
+            }
+            INFO(NCCL_NET, "SNCCL: Forwarded %d bytes from server2 to client", recv_buf->len);
+        }
     } else if (ev == MG_EV_CLOSE) {
-        // 连接关闭时，断开双向连接
-        struct mg_connection *dest = (struct mg_connection *)c->fn_data;
-        if (dest) dest->is_closing = 1;
+        // 关闭双向连接（无论哪端断开）
+        struct mg_connection *peer = (struct mg_connection *)c->fn_data;
+        if (peer && !peer->is_closing) {
+            peer->is_closing = 1; // 安全关闭对端连接
+            INFO(NCCL_SHUTDOWN, "SNCCL: Closing peer connection");
+        }
     }
 }
 
@@ -66,8 +81,7 @@ void* ncclserverInit(void* args){
 
     INFO(NCCL_INIT, "mg_mgr_init");
     mg_mgr_init(&mgr);
-  
-    // 监听本地端口 8000（可修改）
+
     INFO(NCCL_INIT, "mg_mgr_init success");
     mg_listen(&mgr, SERVER1_ADDR, ev_handler, NULL);
     // 事件循环
@@ -190,11 +204,11 @@ ncclResult_t SendClientConncet(char* target) {
 
 ncclResult_t serverInit() {
   pthread_t thread1;
-  pthread_t thread2;
+  //pthread_t thread2;
   PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
   ncclSetThreadName(thread1, "NCCL Server1");
-  PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
-  ncclSetThreadName(thread2, "NCCL Server2");
+  //PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
+  //ncclSetThreadName(thread2, "NCCL Server2");
   INFO(NCCL_INIT, "Forwarding Server Init Succsss");
   return ncclSuccess;
 }

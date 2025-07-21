@@ -50,7 +50,7 @@ class ThroughputSender:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TCP 吞吐量测试工具")
-    parser.add_argument("--ip", default="127.0.0.1", help="目标服务器IP（默认：127.0.0.1）")
+    parser.add_argument("--ip", default="172.20.93.148", help="目标服务器IP（默认：127.0.0.1）")
     parser.add_argument("--port", type=int, default=8080, help="目标端口（默认：8080）")
     parser.add_argument("--size", type=int, default=4096, help="数据包大小（字节，默认：4096）")
     parser.add_argument("--interval", type=float, default=0.01, help="发送间隔（秒，默认：0.01）")
