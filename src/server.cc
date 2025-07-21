@@ -63,7 +63,6 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
                 mg_send(entry->conn, payload, payload_len);
             }
             c->recv.len = 0; // 清空接收缓冲区
-            }
             INFO(NCCL_NET, "SNCCL: Forwarded %d bytes from server2 to client", recv_buf->len);
         }
     } else if (ev == MG_EV_CLOSE) {
