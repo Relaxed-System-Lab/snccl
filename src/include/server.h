@@ -3,10 +3,8 @@
 
 #include "nccl.h"
 
-#define DEST_PORT "8001"
-#define DEST_IP "192.168.1.148"
-#define SERVER1_ADDR "tcp://192.168.1.148:8000"
-#define SERVER2_ADDR "tcp://192.168.1.148:8001"
+#define SERVER1_ADDR "172.20.93.148:8080"
+#define SERVER2_ADDR "172.27.109.125:8080"
 
 ncclResult_t serverInit();
 ncclResult_t clientInit();
