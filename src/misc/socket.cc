@@ -675,7 +675,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     } else if (ev == MG_EV_READ) {
         // 接收响应处理（与发送方式无关）
         struct mg_iobuf *rx = &c->recv;
-        printf("Recv[%d]: %.*s", (int)rx->len, (int)rx->len, rx->buf);
+        INFO(NCCL_INIT|NCCL_NET, "Recv[%d]: %.*s", (int)rx->len, (int)rx->len, rx->buf);
         rx->len = 0; // 清空接收缓冲区
     } else if (ev == MG_EV_CLOSE) {
         printf("Connection closed\n");
