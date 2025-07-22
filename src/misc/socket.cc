@@ -687,12 +687,11 @@ ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
     char line[SOCKET_NAME_MAXLEN+1];
     char line2[SOCKET_NAME_MAXLEN+1];
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
-
+    //INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
     sock->connectToServer = true;
     mg_mgr_init(sock->mgr);
     mg_connect(sock->mgr, "172.27.109.125:8080", fn, NULL); // 连接转发服务器
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
+    //INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
   }
 
 //#ifdef ENABLE_TRACE
@@ -878,7 +877,7 @@ ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
     struct mg_connection *c = sock->mgr->conns;
     if (c->is_connecting) {
       mg_send(c, ptr, size);
-      INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", size);
+      //INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", size);
     }
   }
 
@@ -914,7 +913,7 @@ ncclResult_t ncclSocketSendRecv(struct ncclSocket* sendSock, void* sendPtr, int 
     struct mg_connection *c = sendSock->mgr->conns;
     if (c->is_connecting) {
       mg_send(c, sendPtr, sendSize);
-      INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", sendSize);
+      //INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", sendSize);
     }
   }
   int sendOffset = 0, recvOffset = 0;

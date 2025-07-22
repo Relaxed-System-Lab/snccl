@@ -48,7 +48,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
             struct mg_connection *dest = (struct mg_connection *)c->fn_data;
             mg_send(dest, c->recv.buf, c->recv.len);
             c->recv.len = 0; // 清空客户端缓冲区
-            INFO(NCCL_NET, "SNCCL: Forwarded %d bytes to server2", c->recv.len);
+            INFO(NCCL_INIT, "SNCCL: Forwarded %d bytes to server2", c->recv.len);
         } else {
             struct mg_iobuf *recv_buf = &c->recv;
             struct mg_str data = mg_str_n((const char *)recv_buf->buf, recv_buf->len);
@@ -67,7 +67,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
                 mg_send(entry->conn, payload, payload_len);
             }
             c->recv.len = 0; // 清空接收缓冲区
-            INFO(NCCL_NET, "SNCCL: Forwarded %d bytes from server2 to client", recv_buf->len);
+            INFO(NCCL_INIT, "SNCCL: Forwarded %d bytes from server2 to client", recv_buf->len);
         }
     } else if (ev == MG_EV_CLOSE) {
         // 关闭双向连接（无论哪端断开）

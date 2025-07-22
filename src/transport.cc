@@ -28,7 +28,7 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
   struct ncclPeerInfo* peerInfo = comm->peerInfo+peer;
   struct ncclConnector* connector = (type == 1) ? comm->channels[channelId].peers[peer]->send + connIndex :
                                                   comm->channels[channelId].peers[peer]->recv + connIndex;
-  INFO(NCCL_INIT, "SNCCL: choose TRansports type");                                          
+  //INFO(NCCL_INIT, "SNCCL: choose TRansports type");                                          
   for (int t=0; t<NTRANSPORTS; t++) {
     if (t < 2) continue;
     struct ncclTransport *transport = ncclTransports[t];
@@ -36,7 +36,7 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
     int ret = 0;
     NCCLCHECK(transport->canConnect(&ret, comm, graph, myInfo, peerInfo));
     if (ret) {
-      INFO(NCCL_INIT, "SNCCL: choose TRansports type:%d", t);
+      //INFO(NCCL_INIT, "SNCCL: choose TRansports type:%d", t);
       connector->transportComm = transportComm;
       NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
       if (transportType) *transportType = t;
