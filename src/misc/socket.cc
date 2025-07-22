@@ -819,7 +819,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
   }
 
   memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
-
+  connectToServer = true;
   if (connectToServer) {
     sock->mgr = new mg_mgr;
     mg_mgr_init(sock->mgr);
