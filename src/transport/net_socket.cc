@@ -389,7 +389,7 @@ ncclResult_t ncclNetSocketConnect(int dev, ncclNetCommConfig_t* config, void* op
     stage->sock = sock;
     stage->state = ncclNetSocketCommStateConnect;
     stage->iteration = i;
-    NCCLCHECK(ncclSocketConnect(sock));
+    NCCLCHECK(ncclSocketConnect(sock, true));
 
 socket_connect_check:
     NCCLCHECK(ncclSocketReady(sock, &ready));
