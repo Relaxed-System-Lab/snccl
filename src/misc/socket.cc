@@ -680,7 +680,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup = false) {
+ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
     sock->addr = sock->backupAddr;
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing Address");
