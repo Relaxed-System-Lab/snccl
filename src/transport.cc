@@ -30,7 +30,7 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
                                                   comm->channels[channelId].peers[peer]->recv + connIndex;
   //INFO(NCCL_INIT, "SNCCL: choose TRansports type");                                          
   for (int t=0; t<NTRANSPORTS; t++) {
-    if (t < 2) continue;
+    //if (t < 2) continue;
     struct ncclTransport *transport = ncclTransports[t];
     struct ncclTransportComm* transportComm = type == 1 ? &transport->send : &transport->recv;
     int ret = 0;
