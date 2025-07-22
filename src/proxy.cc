@@ -1617,7 +1617,7 @@ void* ncclProxyService(void* _args) {
         return NULL;
       }
       if (maxnpeers < s+1) maxnpeers = s+1;
-      if (ncclSocketInit(&peers[s].sock) != ncclSuccess) {
+      if (ncclSocketInit(&peers[s].sock, NULL, NCCL_SOCKET_MAGIC, ncclSocketTypeUnknown, NULL, 0, 0, true) != ncclSuccess) {
         WARN("[Service thread] Initialize peers[%d].sock fails", s);
         return NULL;
       }
@@ -1848,7 +1848,7 @@ ncclResult_t ncclProxyStop(struct ncclComm* comm) {
         // We need to send a ncclProxyMsgStop message to our own proxy
         struct ncclSocket sock;
         int type = ncclProxyMsgStop;
-        NCCLCHECK(ncclSocketInit(&sock, sharedProxyState->peerAddresses + comm->topParentRanks[comm->rank], comm->sharedRes->magic, ncclSocketTypeProxy, comm->abortFlag));
+        NCCLCHECK(ncclSocketInit(&sock, sharedProxyState->peerAddresses + comm->topParentRanks[comm->rank], comm->sharedRes->magic, ncclSocketTypeProxy, comm->abortFlag, 0, 0, true));
         if (ncclSocketConnect(&sock) == ncclSuccess) {
           (void)ncclSocketSend(&sock, &type, sizeof(int));
         }
