@@ -843,6 +843,8 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
   }
   else{
+    char line[SOCKET_NAME_MAXLEN+1];
+
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s", ncclSocketToString(&sock->addr, line));
   }
   
