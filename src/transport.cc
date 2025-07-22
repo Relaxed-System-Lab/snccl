@@ -29,13 +29,13 @@ static ncclResult_t selectTransport(struct ncclComm* comm, struct ncclTopoGraph*
   struct ncclConnector* connector = (type == 1) ? comm->channels[channelId].peers[peer]->send + connIndex :
                                                   comm->channels[channelId].peers[peer]->recv + connIndex;
   for (int t=0; t<NTRANSPORTS; t++) {
-    if (t <= 1) continue;
+    if (t <= 2) continue;
     struct ncclTransport *transport = ncclTransports[t];
     struct ncclTransportComm* transportComm = type == 1 ? &transport->send : &transport->recv;
     int ret = 0;
     NCCLCHECK(transport->canConnect(&ret, comm, graph, myInfo, peerInfo));
     if (ret) {
-      //INFO(NCCL_INIT, "Jiashu: choose TRansports type:%d", t);
+      INFO(NCCL_INIT, "Jiashu: choose TRansports type:%d", t);
       connector->transportComm = transportComm;
       NCCLCHECK(transportComm->setup(comm, graph, myInfo, peerInfo, connect, connector, channelId, connIndex));
       if (transportType) *transportType = t;
