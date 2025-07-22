@@ -1224,10 +1224,9 @@ ncclResult_t ncclProxyCallAsync(struct ncclComm* comm, struct ncclProxyConnector
 
   sock = sharedProxyState->peerSocks + proxyConn->tpLocalRank;
 
-  INFO(NCCL_INIT|NCCL_NET, "SNCCL: Test Send");
   NCCLCHECKGOTO(ncclSocketSend(sock, &proxyConn->connection, sizeof(void*)), ret, error);
   NCCLCHECKGOTO(ncclSocketSend(sock, &reqSize, sizeof(int)), ret, error);
-  NCCLCHECKGOTO((sock, &respSize, sizeof(int)), ret, error);
+  NCCLCHECKGOTO(ncclSocketSend(sock, &respSize, sizeof(int)), ret, error);
   if (reqSize) NCCLCHECKGOTO(ncclSocketSend(sock, reqBuff, reqSize), ret, error);
 
   // Send opId to proxy
