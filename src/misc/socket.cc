@@ -680,12 +680,40 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
+char* ncclAddr_to_mgAddr(const ncclSocketAddress* nccl_addr) {
+  char ip_str[INET6_ADDRSTRLEN + 1] = {0};  // 存储IP字符串
+  uint16_t port = 0;
+  const struct sockaddr* sa = (const struct sockaddr*)&nccl_addr->addr;
+
+  // 区分 IPv4/IPv6 并提取信息
+  if (sa->sa_family == AF_INET) {  // IPv4
+      struct sockaddr_in* s4 = (struct sockaddr_in*)sa;
+      inet_ntop(AF_INET, &(s4->sin_addr), ip_str, INET_ADDRSTRLEN);
+      port = ntohs(s4->sin_port);  // 端口字节序转换
+  } else if (sa->sa_family == AF_INET6) {  // IPv6
+      struct sockaddr_in6* s6 = (struct sockaddr_in6*)sa;
+      inet_ntop(AF_INET6, &(s6->sin6_addr), ip_str, INET6_ADDRSTRLEN);
+      port = ntohs(s6->sin6_port);
+  } else {
+      return NULL;  // 非支持的协议族
+  }
+
+  // 组合为 Mongoose 格式的地址
+  char* mg_addr = NULL;
+  if (sa->sa_family == AF_INET) {
+      mg_addr = (char*)malloc(22);  // IPv4最大长度: "tcp://255.255.255.255:65535"
+      snprintf(mg_addr, 22, "tcp://%s:%d", ip_str, port);
+  } else {
+      mg_addr = (char*)malloc(50);  // IPv6最大长度: "tcp://[ffff::ffff]:65535"
+      snprintf(mg_addr, 50, "tcp://[%s]:%d", ip_str, port);
+  }
+  return mg_addr;
+}
+
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
     mg_mgr_init(sock->mgr);
-    char addr[50];
-    snprintf(addr, sizeof(addr), "tcp://%s", sock->backupAddr);
-    mg_connect(sock->mgr, sock->backupAddr, fn, NULL); // 连接转发服务器
+    mg_connect(sock->mgr, ncclAddr_to_mgAddr(sock->backupAddr), fn, NULL); // 连接转发服务器
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
     return ncclSuccess;
   }
