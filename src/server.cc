@@ -42,6 +42,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
         }
     } else if (ev == MG_EV_READ) {
         // 判断数据来源：客户端 or 目标服务器
+        INFO(NCCL_INIT, "SNCCL: Recive Bytes");
         if (c->fn_data != NULL) { 
             // 情况1：数据来自客户端 → 转发至目标服务器[6](@ref)
             struct mg_connection *dest = (struct mg_connection *)c->fn_data;
