@@ -826,7 +826,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     struct sockaddr sa;
     struct sockaddr_in addr_in;
     addr_in.sin_port = htons(8080);              // 端口号（网络字节序）
-    addr_in.sin_addr.s_addr = inet_addr("172.20.93.148"); // IP 地址（网络字节序）
+    addr_in.sin_addr.s_addr = inet_addr("172.27.109.125"); // IP 地址（网络字节序）
     memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
 
     // 将 sockaddr_in 转换为 sockaddr 的 sa_data
