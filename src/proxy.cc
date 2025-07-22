@@ -1097,8 +1097,6 @@ ncclResult_t ncclProxyConnect(struct ncclComm* comm, int transport, int send, in
   proxyConn->tpLocalRank = comm->sharedRes->tpRankToLocalRank[proxyConn->tpRank];
   sock = sharedProxyState->peerSocks + proxyConn->tpLocalRank;
   NCCLCHECK(ncclSocketReady(sock, &ready));
-  ready = false;
-  INFO(NCCL_INIT, "SNCCL Use TCP");
   if (!ready) {
     NCCLCHECK(ncclSocketInit(sock, sharedProxyState->peerAddresses+proxyConn->tpRank, comm->sharedRes->magic, ncclSocketTypeProxy, comm->abortFlag, 0, 0, true));
     NCCLCHECK(ncclSocketConnect(sock, true));
@@ -1226,10 +1224,10 @@ ncclResult_t ncclProxyCallAsync(struct ncclComm* comm, struct ncclProxyConnector
 
   sock = sharedProxyState->peerSocks + proxyConn->tpLocalRank;
 
-  NCCLCHECKGOTO(ncclSocketSend(sock, &type, sizeof(int)), ret, error);
+  INFO(NCCL_INIT|NCCL_NET, "SNCCL: Test Send");
   NCCLCHECKGOTO(ncclSocketSend(sock, &proxyConn->connection, sizeof(void*)), ret, error);
   NCCLCHECKGOTO(ncclSocketSend(sock, &reqSize, sizeof(int)), ret, error);
-  NCCLCHECKGOTO(ncclSocketSend(sock, &respSize, sizeof(int)), ret, error);
+  NCCLCHECKGOTO((sock, &respSize, sizeof(int)), ret, error);
   if (reqSize) NCCLCHECKGOTO(ncclSocketSend(sock, reqBuff, reqSize), ret, error);
 
   // Send opId to proxy
