@@ -682,6 +682,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
+    ncclResult_t ret = ncclSuccess;
     sock->salen = sizeof(struct sockaddr_in);
     NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
     char line[SOCKET_NAME_MAXLEN+1];
