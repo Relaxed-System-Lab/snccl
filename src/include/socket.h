@@ -82,7 +82,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
 ncclResult_t ncclSocketListen(struct ncclSocket* sock);
 ncclResult_t ncclSocketGetAddr(struct ncclSocket* sock, union ncclSocketAddress* addr);
 // Connect to sock->addr. sock->fd is set after a successful call.
-ncclResult_t ncclSocketConnect(struct ncclSocket* sock);
+ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup = false);
 // Return socket connection state.
 ncclResult_t ncclSocketReady(struct ncclSocket* sock, int *running);
 // Accept an incoming connection from listenSock->fd and keep the file descriptor in sock->fd, with the remote side IP/port in sock->addr.

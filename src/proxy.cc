@@ -1097,9 +1097,10 @@ ncclResult_t ncclProxyConnect(struct ncclComm* comm, int transport, int send, in
   proxyConn->tpLocalRank = comm->sharedRes->tpRankToLocalRank[proxyConn->tpRank];
   sock = sharedProxyState->peerSocks + proxyConn->tpLocalRank;
   NCCLCHECK(ncclSocketReady(sock, &ready));
+  ready = false;
   if (!ready) {
     NCCLCHECK(ncclSocketInit(sock, sharedProxyState->peerAddresses+proxyConn->tpRank, comm->sharedRes->magic, ncclSocketTypeProxy, comm->abortFlag, 0, 0, true));
-    NCCLCHECK(ncclSocketConnect(sock));
+    NCCLCHECK(ncclSocketConnect(sock, true));
   }
 
   struct ncclProxyInitReq req = {0};

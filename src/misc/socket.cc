@@ -680,10 +680,10 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-ncclResult_t ncclSocketConnect(struct ncclSocket* sock) {
-  if (sock->connectToServer) {
-    mg_connect(sock->mgr, SERVER1_ADDR, fn, NULL);
-    return ncclSuccess;
+ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup = false) {
+  if (connect_backup) {
+    sock->addr = sock->backupAddr;
+    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing Address");
   }
 
 //#ifdef ENABLE_TRACE
@@ -818,7 +818,6 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     memset(&sock->addr, 0, sizeof(union ncclSocketAddress));
   }
 
-  memcpy(&sock->backupAddr, &sock->addr, sizeof(union ncclSocketAddress));
   connectToServer = true;
   if (connectToServer) {
     sock->mgr = new mg_mgr;
@@ -835,17 +834,12 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
     sa.sa_family = AF_INET;
 
-    memcpy(&sock->addr, &sa, sizeof(sockaddr));  // 清空结构体
+    memcpy(&sock->backupAddr, &sa, sizeof(sockaddr));  // 清空结构体
     sock->salen = sizeof(struct sockaddr_in);
     NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
     char line[SOCKET_NAME_MAXLEN+1];
     char line2[SOCKET_NAME_MAXLEN+1];
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
-  }
-  else{
-    char line[SOCKET_NAME_MAXLEN+1];
-
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s", ncclSocketToString(&sock->addr, line));
   }
   
 exit:
