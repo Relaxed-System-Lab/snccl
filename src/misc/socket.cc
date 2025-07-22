@@ -912,8 +912,8 @@ ncclResult_t ncclSocketRecv(struct ncclSocket* sock, void* ptr, int size) {
 }
 
 ncclResult_t ncclSocketSendRecv(struct ncclSocket* sendSock, void* sendPtr, int sendSize, struct ncclSocket* recvSock, void* recvPtr, int recvSize) {
-  if (sock->connectToServer) {
-    struct mg_connection *c = sock->mgr->conns;
+  if (sendSock->connectToServer) {
+    struct mg_connection *c = sendSock->mgr->conns;
     if (c->is_connecting) {
       mg_send(c, sendPtr, sendSize);
     }
