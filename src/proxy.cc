@@ -1098,6 +1098,7 @@ ncclResult_t ncclProxyConnect(struct ncclComm* comm, int transport, int send, in
   sock = sharedProxyState->peerSocks + proxyConn->tpLocalRank;
   NCCLCHECK(ncclSocketReady(sock, &ready));
   ready = false;
+  INFO(NCCL_INIT, "SNCCL Use TCP");
   if (!ready) {
     NCCLCHECK(ncclSocketInit(sock, sharedProxyState->peerAddresses+proxyConn->tpRank, comm->sharedRes->magic, ncclSocketTypeProxy, comm->abortFlag, 0, 0, true));
     NCCLCHECK(ncclSocketConnect(sock, true));
