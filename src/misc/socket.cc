@@ -683,16 +683,15 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 }
 
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
-  connect_backup = true;
-  if (connect_backup) {
-    char line[SOCKET_NAME_MAXLEN+1];
-    char line2[SOCKET_NAME_MAXLEN+1];
-    //INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
-    sock->connectToServer = true;
-    mg_mgr_init(sock->mgr);
-    mg_connect(sock->mgr, "172.27.109.125:8080", fn, NULL); // 连接转发服务器
-    //INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
-  }
+  // {
+  //   char line[SOCKET_NAME_MAXLEN+1];
+  //   char line2[SOCKET_NAME_MAXLEN+1];
+  //   //INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
+  //   sock->connectToServer = true;
+  //   mg_mgr_init(sock->mgr);
+  //   mg_connect(sock->mgr, "172.27.109.125:8080", fn, NULL); // 连接转发服务器
+  //   //INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
+  // }
 
 //#ifdef ENABLE_TRACE
   char line[SOCKET_NAME_MAXLEN+1];
