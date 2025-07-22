@@ -37,6 +37,9 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
             c->fn_data = dest;
             INFO(NCCL_INIT, "SNCCL: Connected to target server");
         }
+        else {
+            INFO(NCCL_INIT, "SNCCL: Can not Connected to target server");
+        }
     } else if (ev == MG_EV_READ) {
         // 判断数据来源：客户端 or 目标服务器
         if (c->fn_data != NULL) { 
@@ -133,10 +136,10 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 void* ncclserver2Init(void* args) {
     struct mg_mgr mgr;
 
-    INFO(NCCL_INIT, "mg_mgr_init");
+    INFO(NCCL_INIT, "SNCCL mg_mgr_init");
     mg_mgr_init(&mgr);
 
-    INFO(NCCL_INIT, "mg_mgr_init success");
+    INFO(NCCL_INIT, "SNCCL mg_mgr_init success");
     mg_listen(&mgr, SERVER2_ADDR, fn, NULL);  // 监听端口 8001
     while (true) mg_mgr_poll(&mgr, 50);
     mg_mgr_free(&mgr);
@@ -205,9 +208,9 @@ ncclResult_t serverInit() {
   pthread_t thread1;
   //pthread_t thread2;
   PTHREADCHECK(pthread_create(&thread1, NULL, ncclserverInit, nullptr), "pthread_create");
-  ncclSetThreadName(thread1, "NCCL Server1");
+  ncclSetThreadName(thread1, "SNCCL Server1");
   //PTHREADCHECK(pthread_create(&thread2, NULL, ncclserver2Init, nullptr), "pthread_create");
   //ncclSetThreadName(thread2, "NCCL Server2");
-  INFO(NCCL_INIT, "Forwarding Server Init Succsss");
+  INFO(NCCL_INIT, "SNCCL Forwarding Server Init Succsss");
   return ncclSuccess;
 }
