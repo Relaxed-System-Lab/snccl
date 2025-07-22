@@ -682,6 +682,13 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
+    sock->salen = sizeof(struct sockaddr_in);
+    NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
+    char line[SOCKET_NAME_MAXLEN+1];
+    char line2[SOCKET_NAME_MAXLEN+1];
+    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
+
+    sock->connectToServer = true;
     mg_mgr_init(sock->mgr);
     mg_connect(sock->mgr, "172.27.109.125:8080", fn, NULL); // 连接转发服务器
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
@@ -836,11 +843,6 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     sa.sa_family = AF_INET;
 
     memcpy(&sock->backupAddr, &sa, sizeof(sockaddr));  // 清空结构体
-    sock->salen = sizeof(struct sockaddr_in);
-    NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
-    char line[SOCKET_NAME_MAXLEN+1];
-    char line2[SOCKET_NAME_MAXLEN+1];
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
   }
   
 exit:
