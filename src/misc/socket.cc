@@ -878,8 +878,8 @@ ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
     struct mg_connection *c = sock->mgr->conns;
     if (c->is_connecting) {
       mg_send(c, ptr, size);
+      INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", size);
     }
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", size);
   }
 
   int offset = 0;
@@ -914,8 +914,8 @@ ncclResult_t ncclSocketSendRecv(struct ncclSocket* sendSock, void* sendPtr, int 
     struct mg_connection *c = sendSock->mgr->conns;
     if (c->is_connecting) {
       mg_send(c, sendPtr, sendSize);
+      INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", sendSize);
     }
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", sendSize);
   }
   int sendOffset = 0, recvOffset = 0;
   if (sendSock == NULL || recvSock == NULL) {
