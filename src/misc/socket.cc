@@ -894,10 +894,6 @@ ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
 }
 
 ncclResult_t ncclSocketRecv(struct ncclSocket* sock, void* ptr, int size) {
-  if (sock->connectToServer) {
-    return ncclSuccess;
-  }
-
   int offset = 0;
   if (sock == NULL) {
     WARN("ncclSocketRecv: pass NULL socket");
