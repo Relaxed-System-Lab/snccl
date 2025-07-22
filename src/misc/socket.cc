@@ -670,6 +670,8 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
             uint32_t value;
         } binary_data = {0x01, htonl(12345)}; // 注意字节序转换
         mg_send(c, &binary_data, sizeof(binary_data));
+
+        INFO(NCCL_INIT|NCCL_NET, "SNCCL: send default info");
     } else if (ev == MG_EV_READ) {
         // 接收响应处理（与发送方式无关）
         struct mg_iobuf *rx = &c->recv;
