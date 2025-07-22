@@ -4,7 +4,7 @@
 #include "nccl.h"
 
 #define SERVER1_ADDR "172.27.109.125:8080"
-#define SERVER2_ADDR "172.20.93.148:8080"
+#define SERVER2_ADDR "172.27.109.125:8081"
 
 ncclResult_t serverInit();
 ncclResult_t clientInit();
