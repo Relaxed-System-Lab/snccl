@@ -825,8 +825,8 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     mg_mgr_init(sock->mgr);
     struct sockaddr sa;
     struct sockaddr_in addr_in;
-    addr_in.sin_port = htons(8000);              // 端口号（网络字节序）
-    addr_in.sin_addr.s_addr = inet_addr("192.168.1.148"); // IP 地址（网络字节序）
+    addr_in.sin_port = htons(8080);              // 端口号（网络字节序）
+    addr_in.sin_addr.s_addr = inet_addr("172.20.93.148"); // IP 地址（网络字节序）
     memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
 
     // 将 sockaddr_in 转换为 sockaddr 的 sa_data
@@ -841,6 +841,9 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     char line[SOCKET_NAME_MAXLEN+1];
     char line2[SOCKET_NAME_MAXLEN+1];
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
+  }
+  else{
+    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s", ncclSocketToString(&sock->addr, line));
   }
   
 exit:
