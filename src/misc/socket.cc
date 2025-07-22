@@ -682,9 +682,6 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
-    ncclResult_t ret = ncclSuccess;
-    sock->salen = sizeof(struct sockaddr_in);
-    NCCLCHECKGOTO(socketResetFd(sock), ret, fail);
     char line[SOCKET_NAME_MAXLEN+1];
     char line2[SOCKET_NAME_MAXLEN+1];
     INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing %s to %s", ncclSocketToString(&sock->addr, line), ncclSocketToString(&sock->backupAddr, line2));
