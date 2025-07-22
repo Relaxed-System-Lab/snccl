@@ -877,6 +877,7 @@ ncclResult_t ncclSocketSend(struct ncclSocket* sock, void* ptr, int size) {
     if (c->is_connecting) {
       mg_send(c, ptr, size);
     }
+    INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send");
   }
 
   int offset = 0;
