@@ -186,25 +186,6 @@ static void client2_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
-ncclResult_t recvClientConncet() {
-    struct mg_mgr mgr;
-    mg_mgr_init(&mgr);
-    mg_connect(&mgr, SERVER2_ADDR, client2_handler, NULL); // 连接转发服务器
-    while (true) mg_mgr_poll(&mgr, 50);
-    mg_mgr_free(&mgr);
-    return ncclSuccess;
-}
-
-
-ncclResult_t SendClientConncet(char* target) {
-    struct mg_mgr mgr;
-    mg_mgr_init(&mgr);
-    mg_connect(&mgr, SERVER1_ADDR, client1_handler, NULL); // 连接转发服务器
-    while (true) mg_mgr_poll(&mgr, 50);
-    mg_mgr_free(&mgr);
-    return ncclSuccess;
-}
-
 ncclResult_t serverInit() {
   pthread_t thread1;
   //pthread_t thread2;

@@ -54,6 +54,7 @@ enum ncclSocketType {
 
 struct ncclSocket {
   int fd;
+  int backupfd;
   int acceptFd;
   int errorRetries;
   union ncclSocketAddress addr;
