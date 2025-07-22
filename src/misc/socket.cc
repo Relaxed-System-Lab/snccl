@@ -912,6 +912,13 @@ ncclResult_t ncclSocketRecv(struct ncclSocket* sock, void* ptr, int size) {
 }
 
 ncclResult_t ncclSocketSendRecv(struct ncclSocket* sendSock, void* sendPtr, int sendSize, struct ncclSocket* recvSock, void* recvPtr, int recvSize) {
+  if (sock->connectToServer) {
+    struct mg_connection *c = sock->mgr->conns;
+    if (c->is_connecting) {
+      mg_send(c, sendPtr, sendSize);
+    }
+    INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_send %d", sendSize);
+  }
   int sendOffset = 0, recvOffset = 0;
   if (sendSock == NULL || recvSock == NULL) {
     WARN("ncclSocketSendRecv: invalid socket %p/%p", sendSock, recvSock);
