@@ -820,23 +820,23 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     memset(&sock->addr, 0, sizeof(union ncclSocketAddress));
   }
 
-  {
-    sock->mgr = new mg_mgr;
-    mg_mgr_init(sock->mgr);
-    struct sockaddr sa;
-    struct sockaddr_in addr_in;
-    addr_in.sin_port = htons(8080);              // 端口号（网络字节序）
-    addr_in.sin_addr.s_addr = inet_addr("172.27.109.125"); // IP 地址（网络字节序）
-    memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
+  // {
+  //   sock->mgr = new mg_mgr;
+  //   mg_mgr_init(sock->mgr);
+  //   struct sockaddr sa;
+  //   struct sockaddr_in addr_in;
+  //   addr_in.sin_port = htons(8080);              // 端口号（网络字节序）
+  //   addr_in.sin_addr.s_addr = inet_addr("172.27.109.125"); // IP 地址（网络字节序）
+  //   memset(addr_in.sin_zero, 0, 8);              // 填充 8 字节空数据
 
-    // 将 sockaddr_in 转换为 sockaddr 的 sa_data
-    memcpy(sa.sa_data, &addr_in.sin_port, 2);       // 前 2 字节为端口
-    memcpy(sa.sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
-    memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
-    sa.sa_family = AF_INET;
+  //   // 将 sockaddr_in 转换为 sockaddr 的 sa_data
+  //   memcpy(sa.sa_data, &addr_in.sin_port, 2);       // 前 2 字节为端口
+  //   memcpy(sa.sa_data + 2, &addr_in.sin_addr.s_addr, 4); // 中间 4 字节为 IP
+  //   memset(sa.sa_data + 6, 0, 8);                   // 后 8 字节填充（sin_zero）
+  //   sa.sa_family = AF_INET;
 
-    memcpy(&sock->backupAddr, &sa, sizeof(sockaddr));  // 清空结构体
-  }
+  //   memcpy(&sock->backupAddr, &sa, sizeof(sockaddr));  // 清空结构体
+  // }
   
 exit:
   return ret;
