@@ -682,8 +682,10 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 
 ncclResult_t ncclSocketConnect(struct ncclSocket* sock, bool connect_backup) {
   if (connect_backup) {
-    sock->addr = sock->backupAddr;
-    INFO(NCCL_INIT|NCCL_NET, "SNCCL: changing Address");
+    mg_mgr_init(&sock->mgr);
+    mg_connect(&sock->mgr, sock->backupAddr, fn, NULL); // 连接转发服务器
+    INFO(NCCL_INIT|NCCL_NET, "SNCCL: mg_connect");
+    return ncclSuccess;
   }
 
 //#ifdef ENABLE_TRACE
@@ -818,8 +820,7 @@ ncclResult_t ncclSocketInit(struct ncclSocket* sock, const union ncclSocketAddre
     memset(&sock->addr, 0, sizeof(union ncclSocketAddress));
   }
 
-  connectToServer = true;
-  if (connectToServer) {
+  {
     sock->mgr = new mg_mgr;
     mg_mgr_init(sock->mgr);
     struct sockaddr sa;
